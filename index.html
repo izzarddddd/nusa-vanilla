@@ -1,30 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nusa Vanilla — Indonesian Vanilla Marketplace</title>
+<title>Nusa Vanilla | Vanili Planifolia & Tahitensis untuk ekspor</title>
+<meta name="description" content="Katalog vanili Indonesia untuk pembeli B2B: spesifikasi mutu, harga referensi per kg, dan permintaan penawaran (RFQ) langsung.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#2e4426">
+<link rel="canonical" href="https://izzarddddd.github.io/nusa-vanilla/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nusa Vanilla">
+<meta property="og:title" content="Nusa Vanilla | Vanili Planifolia & Tahitensis untuk ekspor">
+<meta property="og:description" content="Katalog vanili Indonesia untuk pembeli B2B: spesifikasi mutu, harga referensi per kg, dan permintaan penawaran (RFQ) langsung.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232e4426'/%3E%3Cpath d='M8 25C12 16 18 10 25 6' stroke='%23f0e6d2' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="#/">Nusa<span>Vanilla</span></a>
-  <nav>
-    <a href="#/">Marketplace</a>
-    <a href="#/about">About</a>
-    <a href="#/admin">Admin</a>
-    <a class="cartlink" href="#/cart">Inquiry <b id="cartCount">0</b></a>
-  </nav>
-</header>
-<main id="app"></main>
-<footer class="foot">
-  <div>© <span id="yr"></span> Nusa Vanilla · Direct from Indonesian farmers & cooperatives to the world.</div>
-</footer>
-<div id="toast" class="toast" hidden></div>
+<div id="app"></div>
+<noscript><p style="padding:2rem;font-family:sans-serif">Situs ini membutuhkan JavaScript. Untuk permintaan penawaran, hubungi kami lewat email.</p></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
-<script src="app.js"></script>
+<script src="js/lib.js"></script>
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/motion.js"></script>
+<script src="js/decor.js"></script>
+<script src="js/public.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

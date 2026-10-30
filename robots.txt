@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://izzarddddd.github.io/nusa-vanilla/sitemap.xml
