@@ -1,13 +1,5 @@
+-- Single seller: satu toko, tanpa tabel penjual.
 -- Jalankan di Supabase → SQL Editor → New query → Run
-
-create table if not exists sellers (
-  id text primary key,
-  name text not null,
-  region text,
-  contact text,
-  status text not null default 'pending' check (status in ('pending','approved','rejected')),
-  created_at timestamptz not null default now()
-);
 
 create table if not exists products (
   id text primary key,
@@ -21,7 +13,7 @@ create table if not exists products (
   price numeric not null default 0,
   moq numeric not null default 1,
   stock numeric not null default 0,
-  seller_id text references sellers(id) on delete set null,
+  origin text,
   hue int default 28,
   image text,
   status text not null default 'draft' check (status in ('draft','published')),
@@ -56,14 +48,12 @@ language sql security definer set search_path = public stable as $$
   select exists (select 1 from admins where user_id = auth.uid());
 $$;
 
-alter table sellers  enable row level security;
 alter table products enable row level security;
 alter table orders   enable row level security;
 alter table settings enable row level security;
 alter table admins   enable row level security;
 
--- Publik: hanya baca penjual yang disetujui & produk published
-create policy "public read sellers"  on sellers  for select using (status = 'approved' or is_admin());
+-- Publik: hanya baca produk published & pengaturan kontak
 create policy "public read products" on products for select using (status = 'published' or is_admin());
 create policy "public read settings" on settings for select using (true);
 
@@ -72,7 +62,6 @@ create policy "anyone can create order" on orders for insert
   with check (status = 'New' and jsonb_typeof(items) = 'array');
 
 -- Admin: akses penuh
-create policy "admin all sellers"  on sellers  for all using (is_admin()) with check (is_admin());
 create policy "admin all products" on products for all using (is_admin()) with check (is_admin());
 create policy "admin all orders"   on orders   for all using (is_admin()) with check (is_admin());
 create policy "admin all settings" on settings for all using (is_admin()) with check (is_admin());
@@ -80,3 +69,8 @@ create policy "admin read admins"  on admins   for select using (user_id = auth.
 
 -- SETELAH membuat user admin di Authentication → Users, jalankan (ganti emailnya):
 -- insert into admins (user_id) select id from auth.users where email = 'izzarsohib@gmail.com';
+
+-- Migrasi dari versi multi-seller (jika sebelumnya sudah dibuat):
+-- alter table products drop column if exists seller_id;
+-- alter table products add column if not exists origin text;
+-- drop table if exists sellers cascade;

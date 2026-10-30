@@ -1,4 +1,4 @@
-/* Nusa Vanilla — marketplace + admin + PRD generator. Data lives in localStorage. */
+/* Nusa Vanilla — marketplace + admin. Data lives in localStorage. */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const usd = n => '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
@@ -7,19 +7,13 @@ const uid = p => p + Math.random().toString(36).slice(2, 8).toUpperCase();
 /* ---------- data ---------- */
 const SEED = {
   settings: { adminUser: 'admin', adminPass: 'admin123', idrRate: 16000, whatsapp: '+62 812 0000 0000', email: 'export@nusavanilla.example' },
-  sellers: [
-    { id: 'S1', name: 'Koperasi Tani Vanili Flores', region: 'Flores, NTT', status: 'approved', contact: 'flores@example.com' },
-    { id: 'S2', name: 'Bali Spice Growers', region: 'Bali', status: 'approved', contact: 'bali@example.com' },
-    { id: 'S3', name: 'Papua Highland Vanilla', region: 'Papua', status: 'approved', contact: 'papua@example.com' },
-    { id: 'S4', name: 'Java Aroma Co-op', region: 'Central Java', status: 'pending', contact: 'java@example.com' }
-  ],
   products: [
-    { id: 'P1', name: 'Planifolia Gourmet Beans — Grade A', category: 'Whole Beans', species: 'V. planifolia', grade: 'Grade A (Gourmet)', length: '16–20 cm', moisture: '30–35%', vanillin: '1.8–2.2%', price: 285, moq: 5, stock: 120, sellerId: 'S1', hue: 28, status: 'published', desc: 'Plump, oily, dark-brown beans with rich creamy-sweet aroma. Ideal for premium retail, patisserie and ice cream.' },
-    { id: 'P2', name: 'Planifolia Extraction Beans — Grade B', category: 'Whole Beans', species: 'V. planifolia', grade: 'Grade B (Extraction)', length: '12–16 cm', moisture: '20–25%', vanillin: '1.5–1.9%', price: 115, moq: 10, stock: 300, sellerId: 'S2', hue: 22, status: 'published', desc: 'Drier beans with high vanillin yield, suited for extract and flavor manufacturing.' },
-    { id: 'P3', name: 'Tahitensis Beans — Grade A', category: 'Whole Beans', species: 'V. tahitensis', grade: 'Grade A (Gourmet)', length: '14–18 cm', moisture: '32–38%', vanillin: '1.2–1.6%', price: 340, moq: 3, stock: 45, sellerId: 'S3', hue: 340, status: 'published', desc: 'Floral, fruity and cherry-like profile from Papua highlands. Prized by chefs and perfumers.' },
-    { id: 'P4', name: 'Vanilla Powder (Ground Beans)', category: 'Powder', species: 'V. planifolia', grade: 'Food grade', length: '—', moisture: '≤ 8%', vanillin: '1.6%', price: 190, moq: 10, stock: 80, sellerId: 'S2', hue: 38, status: 'published', desc: '100% ground whole beans, no additives. Great for baking, beverages and cosmetics.' },
-    { id: 'P5', name: 'Pure Vanilla Extract (1x Fold)', category: 'Extract', species: 'V. planifolia', grade: 'Food grade', length: '—', moisture: '—', vanillin: '≥ 35 g/L beans', price: 95, moq: 20, stock: 200, sellerId: 'S1', hue: 18, status: 'published', desc: 'Bulk extract in 5L / 20L containers. Private-label bottling available on request.' },
-    { id: 'P6', name: 'Vanilla Cuts & Splits', category: 'Cuts & Splits', species: 'V. planifolia', grade: 'Grade B/C', length: '< 12 cm', moisture: '18–22%', vanillin: '1.4–1.8%', price: 75, moq: 25, stock: 400, sellerId: 'S3', hue: 30, status: 'published', desc: 'Economical broken beans for extraction and industrial flavoring.' }
+    { id: 'P1', name: 'Planifolia Gourmet Beans — Grade A', category: 'Whole Beans', species: 'V. planifolia', grade: 'Grade A (Gourmet)', length: '16–20 cm', moisture: '30–35%', vanillin: '1.8–2.2%', price: 285, moq: 5, stock: 120, origin: 'Flores, NTT', hue: 28, status: 'published', desc: 'Plump, oily, dark-brown beans with rich creamy-sweet aroma. Ideal for premium retail, patisserie and ice cream.' },
+    { id: 'P2', name: 'Planifolia Extraction Beans — Grade B', category: 'Whole Beans', species: 'V. planifolia', grade: 'Grade B (Extraction)', length: '12–16 cm', moisture: '20–25%', vanillin: '1.5–1.9%', price: 115, moq: 10, stock: 300, origin: 'Bali', hue: 22, status: 'published', desc: 'Drier beans with high vanillin yield, suited for extract and flavor manufacturing.' },
+    { id: 'P3', name: 'Tahitensis Beans — Grade A', category: 'Whole Beans', species: 'V. tahitensis', grade: 'Grade A (Gourmet)', length: '14–18 cm', moisture: '32–38%', vanillin: '1.2–1.6%', price: 340, moq: 3, stock: 45, origin: 'Papua', hue: 340, status: 'published', desc: 'Floral, fruity and cherry-like profile from Papua highlands. Prized by chefs and perfumers.' },
+    { id: 'P4', name: 'Vanilla Powder (Ground Beans)', category: 'Powder', species: 'V. planifolia', grade: 'Food grade', length: '—', moisture: '≤ 8%', vanillin: '1.6%', price: 190, moq: 10, stock: 80, origin: 'Bali', hue: 38, status: 'published', desc: '100% ground whole beans, no additives. Great for baking, beverages and cosmetics.' },
+    { id: 'P5', name: 'Pure Vanilla Extract (1x Fold)', category: 'Extract', species: 'V. planifolia', grade: 'Food grade', length: '—', moisture: '—', vanillin: '≥ 35 g/L beans', price: 95, moq: 20, stock: 200, origin: 'Flores, NTT', hue: 18, status: 'published', desc: 'Bulk extract in 5L / 20L containers. Private-label bottling available on request.' },
+    { id: 'P6', name: 'Vanilla Cuts & Splits', category: 'Cuts & Splits', species: 'V. planifolia', grade: 'Grade B/C', length: '< 12 cm', moisture: '18–22%', vanillin: '1.4–1.8%', price: 75, moq: 25, stock: 400, origin: 'Papua', hue: 30, status: 'published', desc: 'Economical broken beans for extraction and industrial flavoring.' }
   ],
   orders: [
     { id: 'ORD-A1B2C3', created: Date.now() - 86400000 * 6, status: 'Shipped', incoterm: 'CIF', items: [{ pid: 'P1', qty: 20 }], total: 5700, buyer: { name: 'Hans Becker', company: 'Becker Gewürze GmbH', email: 'hans@example.de', country: 'Germany', port: 'Hamburg', notes: '' } },
@@ -28,22 +22,20 @@ const SEED = {
 };
 /* ---------- Supabase ---------- */
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let db = { settings: { idrRate: 16000, email: '', whatsapp: '' }, sellers: [], products: [], orders: [] };
+let db = { settings: { idrRate: 16000, email: '', whatsapp: '' }, products: [], orders: [] };
 let admin = false;
-const fromProd = r => ({ id: r.id, name: r.name, category: r.category, species: r.species, grade: r.grade, length: r.length, moisture: r.moisture, vanillin: r.vanillin, price: +r.price, moq: +r.moq, stock: +r.stock, sellerId: r.seller_id, hue: r.hue, image: r.image, status: r.status, desc: r.description });
-const toProd = p => ({ id: p.id, name: p.name, category: p.category, species: p.species, grade: p.grade, length: p.length, moisture: p.moisture, vanillin: p.vanillin, price: p.price, moq: p.moq, stock: p.stock, seller_id: p.sellerId, hue: p.hue, image: p.image || null, status: p.status, description: p.desc });
+const fromProd = r => ({ id: r.id, name: r.name, category: r.category, species: r.species, grade: r.grade, length: r.length, moisture: r.moisture, vanillin: r.vanillin, price: +r.price, moq: +r.moq, stock: +r.stock, origin: r.origin, hue: r.hue, image: r.image, status: r.status, desc: r.description });
+const toProd = p => ({ id: p.id, name: p.name, category: p.category, species: p.species, grade: p.grade, length: p.length, moisture: p.moisture, vanillin: p.vanillin, price: p.price, moq: p.moq, stock: p.stock, origin: p.origin || null, hue: p.hue, image: p.image || null, status: p.status, description: p.desc });
 const fromOrder = r => ({ id: r.id, created: Date.parse(r.created_at), status: r.status, incoterm: r.incoterm, items: r.items, total: +r.total, buyer: r.buyer });
 async function refresh() {
-  const [p, s, o, st] = await Promise.all([
+  const [p, o, st] = await Promise.all([
     sb.from('products').select('*').order('created_at'),
-    sb.from('sellers').select('*').order('created_at'),
     admin ? sb.from('orders').select('*').order('created_at', { ascending: false }) : { data: [] },
     sb.from('settings').select('*').eq('id', 1).maybeSingle()
   ]);
-  const err = p.error || s.error || o.error;
+  const err = p.error || o.error;
   if (err) toast(err.message);
   db.products = (p.data || []).map(fromProd);
-  db.sellers = s.data || [];
   db.orders = (o.data || []).map(fromOrder);
   if (st.data) db.settings = { idrRate: +st.data.idr_rate, email: st.data.email, whatsapp: st.data.whatsapp };
 }
@@ -53,10 +45,8 @@ const saveCart = () => { try { localStorage.setItem('nv_cart', JSON.stringify(ca
 const updateCount = () => { $('#cartCount').textContent = cart.length; };
 const isAdmin = () => admin;
 const product = id => db.products.find(p => p.id === id);
-const seller = id => db.sellers.find(s => s.id === id);
 const orderTotal = items => items.reduce((a, i) => a + (product(i.pid)?.price || 0) * i.qty, 0);
 const toast = msg => { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2200); };
-const dl = (name, text, type = 'text/markdown') => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); };
 
 /* ---------- visuals ---------- */
 const podSvg = (hue, w = 120) => `<svg width="${w}" viewBox="0 0 120 120" aria-hidden="true">
@@ -69,7 +59,7 @@ const img = p => p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">` : 
 /* ---------- router ---------- */
 const routes = [
   [/^#\/product\/(.+)$/, productPage], [/^#\/cart$/, cartPage], [/^#\/about$/, aboutPage],
-  [/^#\/prd$/, prdPage], [/^#\/admin(?:\/(\w+))?$/, adminPage], [/^#?\/?$/, shopPage]
+  [/^#\/admin(?:\/(\w+))?$/, adminPage], [/^#?\/?$/, shopPage]
 ];
 function route() {
   const h = location.hash || '#/';
@@ -82,7 +72,7 @@ addEventListener('hashchange', route);
 let filt = { q: '', cat: '', grade: '' };
 function shopPage() {
   const cats = [...new Set(db.products.map(p => p.category))];
-  const vis = db.products.filter(p => p.status === 'published' && seller(p.sellerId)?.status === 'approved');
+  const vis = db.products.filter(p => p.status === 'published');
   $('#app').innerHTML = `
   <section class="hero">
     <div>
@@ -90,7 +80,7 @@ function shopPage() {
       <h1>Premium Indonesian vanilla, sourced directly from the farm.</h1>
       <p>Order planifolia and tahitensis beans, powder and extract from verified cooperatives in Flores, Bali, Papua and Java. Request a quote, get a proforma invoice, ship worldwide.</p>
       <div class="actions"><a class="btn" href="#/" onclick="event.preventDefault();document.getElementById('shop').scrollIntoView({behavior:'smooth'})">Browse products</a><a class="btn ghost" href="#/about">How export works</a></div>
-      <div class="stats"><div><b>${db.sellers.filter(s => s.status === 'approved').length}</b><span class="muted">verified sellers</span></div><div><b>${vis.length}</b><span class="muted">products</span></div><div><b>FOB · CIF</b><span class="muted">incoterms</span></div></div>
+      <div class="stats"><div><b>${new Set(vis.map(p => p.origin).filter(Boolean)).size}</b><span class="muted">growing regions</span></div><div><b>${vis.length}</b><span class="muted">products</span></div><div><b>FOB · CIF</b><span class="muted">incoterms</span></div></div>
     </div>
     <div class="art">${podSvg(28, 260)}</div>
   </section>
@@ -109,7 +99,7 @@ function shopPage() {
       <a class="img" href="#/product/${p.id}" style="background:hsl(${p.hue ?? 28} 55% 92%)">${img(p)}</a>
       <div class="body"><span class="tag">${esc(p.grade)}</span>
         <h3><a href="#/product/${p.id}" style="text-decoration:none">${esc(p.name)}</a></h3>
-        <div class="muted">${esc(seller(p.sellerId)?.name)} · ${esc(seller(p.sellerId)?.region)}</div>
+        <div class="muted">${esc(p.origin || 'Indonesia')}</div>
         <div class="row"><div class="price">${usd(p.price)}<small> /kg · MOQ ${p.moq} kg</small></div>
         <button class="btn sm gold" data-add="${p.id}">Add</button></div></div></article>`).join('') || '<p class="muted">No products match.</p>';
   };
@@ -126,12 +116,11 @@ function addToCart(id, qty) {
 }
 function productPage(id) {
   const p = product(id); if (!p) return shopPage();
-  const s = seller(p.sellerId);
   $('#app').innerHTML = `<p><a href="#/">← Back</a></p><div class="two">
     <div class="panel" style="background:hsl(${p.hue ?? 28} 55% 92%);display:flex;justify-content:center;align-items:center">${img(p)}</div>
     <div><span class="tag">${esc(p.grade)}</span><h1 style="font-size:2rem">${esc(p.name)}</h1>
       <p>${esc(p.desc)}</p>
-      <table><tr><th>Species</th><td>${esc(p.species)}</td></tr><tr><th>Length</th><td>${esc(p.length)}</td></tr><tr><th>Moisture</th><td>${esc(p.moisture)}</td></tr><tr><th>Vanillin</th><td>${esc(p.vanillin)}</td></tr><tr><th>Stock</th><td>${p.stock} kg</td></tr><tr><th>Seller</th><td>${esc(s?.name)} (${esc(s?.region)})</td></tr></table>
+      <table><tr><th>Species</th><td>${esc(p.species)}</td></tr><tr><th>Length</th><td>${esc(p.length)}</td></tr><tr><th>Moisture</th><td>${esc(p.moisture)}</td></tr><tr><th>Vanillin</th><td>${esc(p.vanillin)}</td></tr><tr><th>Stock</th><td>${p.stock} kg</td></tr><tr><th>Origin</th><td>${esc(p.origin || 'Indonesia')}</td></tr></table>
       <p class="price" style="margin:16px 0 4px">${usd(p.price)} <small>/kg · MOQ ${p.moq} kg · ex-works Indonesia</small></p>
       <label>Quantity (kg)</label><input id="qty" type="number" min="${p.moq}" value="${p.moq}" style="max-width:140px">
       <div class="actions"><button class="btn gold" id="add">Add to inquiry</button><a class="btn ghost" href="#/cart">View inquiry</a></div></div></div>`;
@@ -175,12 +164,11 @@ const ST = ['New', 'Quoted', 'Paid', 'Shipped', 'Completed', 'Cancelled'];
 const stTag = s => `<span class="tag ${{ New: 'warn', Quoted: '', Paid: 'ok', Shipped: 'ok', Completed: 'ok', Cancelled: 'bad', approved: 'ok', pending: 'warn', rejected: 'bad', published: 'ok', draft: 'warn' }[s] || ''}">${esc(s)}</span>`;
 function adminPage(tab = 'dashboard') {
   if (!isAdmin()) return loginPage();
-  const tabs = [['dashboard', 'Dashboard'], ['orders', 'Orders'], ['products', 'Products'], ['sellers', 'Sellers'], ['prd', 'PRD Generator'], ['settings', 'Settings']];
+  const tabs = [['dashboard', 'Dashboard'], ['orders', 'Orders'], ['products', 'Products'], ['settings', 'Settings']];
   if (!tabs.some(t => t[0] === tab)) tab = 'dashboard';
-  if (tab === 'prd') return location.hash = '#/prd';
   $('#app').innerHTML = `<div class="admin"><aside class="side">${tabs.map(([k, l]) => `<a class="${k === tab ? 'on' : ''}" href="#/admin/${k}">${l}</a>`).join('')}<a href="#" id="out">Logout</a></aside><section id="adm"></section></div>`;
   $('#out').onclick = async e => { e.preventDefault(); await sb.auth.signOut(); admin = false; await refresh(); location.hash = '#/'; };
-  ({ dashboard: admDash, orders: admOrders, products: admProducts, sellers: admSellers, settings: admSettings })[tab]();
+  ({ dashboard: admDash, orders: admOrders, products: admProducts, settings: admSettings })[tab]();
 }
 function loginPage() {
   $('#app').innerHTML = `<form class="panel login" id="lf"><h2>Administrator</h2><label>Email</label><input name="u" type="email" autocomplete="username"><label>Password</label><input name="p" type="password" autocomplete="current-password"><div class="actions"><button class="btn">Login</button></div><p class="muted">Login memakai akun Supabase Auth yang terdaftar di tabel <code>admins</code>.</p></form>`;
@@ -201,7 +189,7 @@ function admDash() {
   <div class="panel kpi"><span class="muted">Orders</span><b>${db.orders.length}</b></div>
   <div class="panel kpi"><span class="muted">New requests</span><b>${db.orders.filter(o => o.status === 'New').length}</b></div>
   <div class="panel kpi"><span class="muted">Confirmed revenue</span><b>${usd(rev)}</b><span class="muted">≈ Rp ${(rev * db.settings.idrRate).toLocaleString('id-ID')}</span></div>
-  <div class="panel kpi"><span class="muted">Pending sellers</span><b>${db.sellers.filter(s => s.status === 'pending').length}</b></div></div>
+  <div class="panel kpi"><span class="muted">Published products</span><b>${db.products.filter(p => p.status === 'published').length}</b></div></div>
   <div class="panel"><h3>Order value by destination</h3><div class="bars">${Object.entries(byCountry).map(([c, v]) => `<div class="bar"><span>${esc(c)}</span><i style="width:${v / max * 100}%"></i><span>${usd(v)}</span></div>`).join('') || '<span class="muted">No data</span>'}</div></div>`;
 }
 function admOrders() {
@@ -219,8 +207,8 @@ function modal(html, onMount) {
 }
 function admProducts() {
   $('#adm').innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h2>Products</h2><button class="btn gold" id="np">+ New product</button></div>
-  <div class="panel tablewrap"><table><tr><th>Name</th><th>Seller</th><th>Price/kg</th><th>MOQ</th><th>Stock</th><th>Status</th><th></th></tr>
-  ${db.products.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(seller(p.sellerId)?.name)}</td><td>${usd(p.price)}</td><td>${p.moq}</td><td>${p.stock}</td><td>${stTag(p.status)}</td><td><button class="btn sm ghost" data-e="${p.id}">Edit</button> <button class="btn sm danger" data-d="${p.id}">Del</button></td></tr>`).join('')}</table></div>`;
+  <div class="panel tablewrap"><table><tr><th>Name</th><th>Origin</th><th>Price/kg</th><th>MOQ</th><th>Stock</th><th>Status</th><th></th></tr>
+  ${db.products.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.origin)}</td><td>${usd(p.price)}</td><td>${p.moq}</td><td>${p.stock}</td><td>${stTag(p.status)}</td><td><button class="btn sm ghost" data-e="${p.id}">Edit</button> <button class="btn sm danger" data-d="${p.id}">Del</button></td></tr>`).join('')}</table></div>`;
   $('#np').onclick = () => prodForm();
   $('#adm').onclick = async e => {
     if (e.target.dataset.e) prodForm(product(e.target.dataset.e));
@@ -232,7 +220,7 @@ function prodForm(p = {}) {
   const m = modal(`<h3>${p.id ? 'Edit' : 'New'} product</h3><form id="pf">${f('name', 'Name')}${f('category', 'Category')}${f('species', 'Species')}${f('grade', 'Grade')}
   <div class="three">${f('length', 'Length')}${f('moisture', 'Moisture')}${f('vanillin', 'Vanillin')}</div>
   <div class="three">${f('price', 'Price USD/kg', 'number')}${f('moq', 'MOQ kg', 'number')}${f('stock', 'Stock kg', 'number')}</div>
-  ${f('image', 'Image URL (optional)')}<label>Seller</label><select name="sellerId">${db.sellers.map(s => `<option value="${s.id}" ${s.id === p.sellerId ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>
+  ${f('image', 'Image URL (optional)')}${f('origin', 'Origin / asal petani (mis. Flores, NTT)')}
   <label>Status</label><select name="status"><option ${p.status === 'published' ? 'selected' : ''}>published</option><option ${p.status === 'draft' ? 'selected' : ''}>draft</option></select>
   <label>Description</label><textarea name="desc" rows="3">${esc(p.desc || '')}</textarea><div class="actions"><button class="btn gold">Save</button></div></form>`);
   $('#pf', m).onsubmit = async e => {
@@ -241,14 +229,6 @@ function prodForm(p = {}) {
     if (!await run(sb.from('products').upsert(toProd(row)))) return;
     await refresh(); m.remove(); admProducts();
   };
-}
-function admSellers() {
-  $('#adm').innerHTML = `<h2>Sellers</h2><div class="panel tablewrap"><table><tr><th>Name</th><th>Region</th><th>Contact</th><th>Status</th><th></th></tr>
-  ${db.sellers.map(s => `<tr><td>${esc(s.name)}</td><td>${esc(s.region)}</td><td>${esc(s.contact)}</td><td>${stTag(s.status)}</td><td>
-  ${s.status !== 'approved' ? `<button class="btn sm gold" data-a="${s.id}">Approve</button> ` : ''}${s.status !== 'rejected' ? `<button class="btn sm ghost" data-r="${s.id}">Reject</button>` : ''}</td></tr>`).join('')}</table></div>
-  <form class="panel" id="sf" style="margin-top:16px"><h3>Add seller</h3><div class="three"><div><label>Name</label><input name="name" required></div><div><label>Region</label><input name="region"></div><div><label>Contact</label><input name="contact"></div></div><div class="actions"><button class="btn">Add</button></div></form>`;
-  $('#adm').onclick = async e => { const a = e.target.dataset.a, r = e.target.dataset.r; if ((a || r) && await run(sb.from('sellers').update({ status: a ? 'approved' : 'rejected' }).eq('id', a || r))) { await refresh(); admSellers(); } };
-  $('#sf').onsubmit = async e => { e.preventDefault(); if (await run(sb.from('sellers').insert({ id: uid('S'), status: 'pending', ...Object.fromEntries(new FormData(e.target)) }))) { await refresh(); admSellers(); } };
 }
 function admSettings() {
   const s = db.settings;
@@ -260,102 +240,10 @@ function admSettings() {
     if (await run(sb.from('settings').upsert({ id: 1, idr_rate: +d.idrRate || 16000, email: d.email, whatsapp: d.whatsapp }))) { await refresh(); toast('Saved'); }
   };
   $('#rs').onclick = async () => {
-    if (!confirm('Tambahkan sampel penjual & produk ke database?')) return;
-    const ok = await run(sb.from('sellers').upsert(SEED.sellers.map(({ id, name, region, status, contact }) => ({ id, name, region, status, contact })))) && await run(sb.from('products').upsert(SEED.products.map(toProd)));
+    if (!confirm('Tambahkan produk contoh ke database?')) return;
+    const ok = await run(sb.from('products').upsert(SEED.products.map(toProd)));
     if (ok) { await refresh(); toast('Demo data ditambahkan'); }
   };
-}
-
-/* ---------- PRD generator ---------- */
-const PRD_FEATURES = [
-  'Product catalog with filters & search', 'Inquiry / RFQ cart', 'Online payment (T/T, L/C, escrow)', 'Seller onboarding & verification',
-  'Admin dashboard & order management', 'Multi-currency (USD/EUR/IDR)', 'Shipping & Incoterm calculator', 'Export document generator (invoice, packing list, COA)',
-  'Sample request flow', 'Buyer accounts & order tracking', 'Multi-language (EN/ID/DE/AR)', 'Quality grading & lot traceability', 'Email / WhatsApp notifications', 'Reviews & ratings'
-];
-const PRD_DEFAULT = {
-  name: 'Nusa Vanilla Export Marketplace', owner: '', date: new Date().toISOString().slice(0, 10),
-  problem: 'Indonesian vanilla farmers and exporters struggle to reach international buyers directly, depending on intermediaries that take large margins and limit price transparency. Buyers abroad find it hard to verify origin, grade and reliable supply.',
-  vision: 'The most trusted B2B marketplace for Indonesian vanilla, connecting verified producers with global food, flavor and cosmetic buyers.',
-  markets: 'USA, Germany, Netherlands, France, UAE, Japan', personas: 'Importer / flavor manufacturer (B2B buyer)\nSpecialty retailer & chef\nFarmer cooperative / exporter (seller)\nPlatform administrator',
-  goals: 'Onboard 20 verified sellers in 6 months\nProcess 50 export orders in the first year\nReduce quote-to-order time to under 3 days\nReach USD 500k GMV in year one',
-  metrics: 'GMV, number of orders, RFQ-to-order conversion, repeat buyer rate, average response time', stack: 'Frontend: HTML/JS or Next.js; Backend: Node.js + PostgreSQL; Hosting: cloud VPS; Payments: Stripe / Wise / bank T/T',
-  timeline: 'Week 1–2: Discovery & design\nWeek 3–6: MVP marketplace + admin\nWeek 7–8: Pilot with 3 sellers\nWeek 9–12: Launch & marketing', risks: 'Fluctuating vanilla prices\nExport regulation & phytosanitary compliance\nPayment fraud on cross-border orders\nQuality inconsistency between lots',
-  features: [0, 1, 3, 4, 7, 11]
-};
-function prdPage() {
-  let d; try { d = { ...PRD_DEFAULT, ...JSON.parse(localStorage.getItem('nv_prd')) }; } catch { d = PRD_DEFAULT; }
-  const ta = (k, l, r = 3) => `<label>${l}</label><textarea name="${k}" rows="${r}">${esc(d[k])}</textarea>`;
-  $('#app').innerHTML = `<h2>PRD Generator</h2><p class="muted">Isi form, dokumen PRD (Markdown) langsung dibuat. Sudah terisi contoh untuk ekspor vanili Indonesia.</p>
-  <div class="two"><form class="panel" id="pf">
-    <div class="two" style="gap:12px"><div><label>Nama produk</label><input name="name" value="${esc(d.name)}"></div><div><label>Penanggung jawab</label><input name="owner" value="${esc(d.owner)}"></div></div>
-    ${ta('problem', 'Masalah')}${ta('vision', 'Visi', 2)}
-    <label>Pasar tujuan</label><input name="markets" value="${esc(d.markets)}">
-    ${ta('personas', 'Pengguna (satu per baris)', 4)}${ta('goals', 'Tujuan (satu per baris)', 4)}
-    <label>Fitur</label><div class="checks">${PRD_FEATURES.map((f, i) => `<label><input type="checkbox" name="feat" value="${i}" ${d.features.includes(i) ? 'checked' : ''}> ${f}</label>`).join('')}</div>
-    <label>Fitur tambahan (satu per baris)</label><textarea name="extra" rows="2">${esc(d.extra || '')}</textarea>
-    ${ta('metrics', 'Metrik keberhasilan', 2)}${ta('stack', 'Tech stack', 2)}${ta('timeline', 'Timeline', 4)}${ta('risks', 'Risiko', 4)}
-  </form><div><div class="actions" style="margin-top:0"><button class="btn gold" id="cp">Copy</button><button class="btn" id="dlm">Download .md</button><button class="btn ghost" id="rst">Reset</button></div><pre class="out" id="out" style="margin-top:12px"></pre></div></div>`;
-  const read = () => { const f = new FormData($('#pf')); const o = Object.fromEntries([...f].filter(([k]) => k !== 'feat')); o.features = f.getAll('feat').map(Number); o.date = d.date; return o; };
-  const render = () => { const o = read(); try { localStorage.setItem('nv_prd', JSON.stringify(o)); } catch {} $('#out').textContent = buildPrd(o); };
-  $('#pf').oninput = render; render();
-  $('#cp').onclick = () => navigator.clipboard.writeText($('#out').textContent).then(() => toast('Disalin'), () => toast('Gagal menyalin'));
-  $('#dlm').onclick = () => dl('PRD-' + (read().name || 'product').replace(/\W+/g, '-') + '.md', $('#out').textContent);
-  $('#rst').onclick = () => { try { localStorage.removeItem('nv_prd'); } catch {} prdPage(); };
-}
-function buildPrd(o) {
-  const L = s => (s || '').split('\n').map(x => x.trim()).filter(Boolean);
-  const bl = s => L(s).map(x => `- ${x}`).join('\n') || '- —';
-  const feats = [...o.features.map(i => PRD_FEATURES[i]), ...L(o.extra)];
-  return `# PRD — ${o.name}
-
-**Penanggung jawab:** ${o.owner || '—'}
-**Tanggal:** ${o.date}
-**Status:** Draft
-
-## 1. Latar belakang & masalah
-${o.problem}
-
-## 2. Visi
-${o.vision}
-
-## 3. Pasar tujuan
-${o.markets}
-
-## 4. Pengguna
-${bl(o.personas)}
-
-## 5. Tujuan
-${bl(o.goals)}
-
-## 6. Lingkup fitur
-${feats.map(f => `- [ ] ${f}`).join('\n') || '- —'}
-
-### Kebutuhan fungsional utama
-- **Marketplace:** pembeli menelusuri produk, melihat grade/harga/MOQ, dan mengirim permintaan penawaran.
-- **Admin:** login administrator untuk mengelola produk, penjual, pesanan, dan pengaturan.
-- **Pesanan:** status New → Quoted → Paid → Shipped → Completed.
-
-## 7. Kebutuhan non-fungsional
-- Responsif (mobile & desktop), waktu muat < 3 detik
-- Keamanan: HTTPS, hashing password, kontrol akses berbasis peran
-- Kepatuhan ekspor: fitotsanitari, Certificate of Origin, COA
-
-## 8. Metrik keberhasilan
-${o.metrics}
-
-## 9. Tech stack
-${o.stack}
-
-## 10. Timeline
-${bl(o.timeline)}
-
-## 11. Risiko & mitigasi
-${bl(o.risks)}
-
-## 12. Pertanyaan terbuka
-- Metode pembayaran apa yang diprioritaskan untuk pembeli luar negeri?
-- Siapa yang menangani logistik dan dokumen ekspor (in-house atau forwarder)?
-`;
 }
 
 /* ---------- boot ---------- */
