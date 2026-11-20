@@ -1,5 +1,5 @@
 /* Lapisan gerak storefront publik. Hanya transform/opacity (+ blur pada TextReveal), sekali jalan, tanpa loop
-   (kecuali video hero). Portal admin tidak memanggil berkas ini. */
+   (kecuali video hero). */
 (function () {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasIO = 'IntersectionObserver' in window;

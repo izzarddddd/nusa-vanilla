@@ -223,3 +223,91 @@ grant execute on function lookup_inquiry(text, text) to anon, authenticated;
 
 -- ───────── Setelah membuat user admin di Authentication → Users ─────────
 -- insert into admins (user_id) select id from auth.users where email = 'EMAIL_ADMIN';
+
+-- ═════════ Admin v2 (aplikasi admin terpisah): buyer, riwayat harga, catatan, penawaran final, foto ═════════
+-- Aman dijalankan ulang. Dipakai oleh repo nusa-vanilla-admin; situs publik tidak membaca tabel-tabel ini.
+
+create table if not exists buyers (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  company_name text not null,
+  contact_name text not null,
+  phone text,
+  country text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create unique index if not exists buyers_email_key on buyers (lower(email));
+create or replace trigger buyers_touch before update on buyers for each row execute function touch_updated_at();
+
+alter table inquiries add column if not exists buyer_id uuid references buyers(id) on delete set null on update cascade;
+alter table inquiries add column if not exists internal_notes text;
+alter table inquiries add column if not exists quoted_price_per_kg numeric(12,2) check (quoted_price_per_kg is null or quoted_price_per_kg > 0);
+alter table inquiries add column if not exists quoted_quantity_kg numeric(12,2) check (quoted_quantity_kg is null or quoted_quantity_kg > 0);
+create index if not exists inquiries_buyer_id on inquiries (buyer_id);
+
+-- Buyer terbentuk otomatis dari RFQ (satu buyer per email). Data kontak buyer lama tidak ditimpa RFQ baru.
+create or replace function link_inquiry_buyer() returns trigger language plpgsql security definer set search_path = public as $$
+declare bid uuid;
+begin
+  insert into buyers (email, company_name, contact_name, phone, country)
+  values (lower(new.email), new.company_name, new.contact_name, new.phone, new.country)
+  on conflict (lower(email)) do update set email = buyers.email
+  returning id into bid;
+  new.buyer_id := bid;
+  return new;
+end $$;
+create or replace trigger inquiries_link_buyer before insert on inquiries for each row execute function link_inquiry_buyer();
+
+-- Isi buyer dari RFQ yang sudah ada
+insert into buyers (email, company_name, contact_name, phone, country)
+select distinct on (lower(email)) lower(email), company_name, contact_name, phone, country
+  from inquiries order by lower(email), created_at desc
+on conflict (lower(email)) do nothing;
+update inquiries i set buyer_id = b.id from buyers b where lower(b.email) = lower(i.email) and i.buyer_id is null;
+
+-- Riwayat harga per produk (diisi otomatis)
+create table if not exists product_price_history (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references vanilla_products(id) on delete cascade,
+  old_price numeric(12,2),
+  new_price numeric(12,2) not null,
+  changed_at timestamptz not null default now()
+);
+create index if not exists price_history_product on product_price_history (product_id, changed_at desc);
+
+create or replace function log_price_change() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'INSERT' then
+    insert into product_price_history (product_id, old_price, new_price) values (new.id, null, new.price_per_kg);
+  elsif new.price_per_kg is distinct from old.price_per_kg then
+    insert into product_price_history (product_id, old_price, new_price) values (new.id, old.price_per_kg, new.price_per_kg);
+  end if;
+  return new;
+end $$;
+create or replace trigger vanilla_products_price_log after insert or update of price_per_kg on vanilla_products for each row execute function log_price_change();
+insert into product_price_history (product_id, old_price, new_price)
+select p.id, null, p.price_per_kg from vanilla_products p where not exists (select 1 from product_price_history h where h.product_id = p.id);
+
+alter table buyers enable row level security;
+alter table product_price_history enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename = 'buyers' and policyname = 'admin all buyers') then
+    create policy "admin all buyers" on buyers for all using (is_admin()) with check (is_admin());
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'product_price_history' and policyname = 'admin read price history') then
+    create policy "admin read price history" on product_price_history for select using (is_admin());
+  end if;
+end $$;
+
+-- Foto produk (Storage): baca publik, tulis hanya admin
+insert into storage.buckets (id, name, public) values ('product-images', 'product-images', true) on conflict (id) do nothing;
+do $$ begin
+  if not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname = 'product images read') then
+    create policy "product images read" on storage.objects for select using (bucket_id = 'product-images');
+  end if;
+  if not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname = 'product images admin write') then
+    create policy "product images admin write" on storage.objects for all using (bucket_id = 'product-images' and is_admin()) with check (bucket_id = 'product-images' and is_admin());
+  end if;
+end $$;

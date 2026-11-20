@@ -220,7 +220,6 @@
 
   /* klik delegasi: tombol RFQ dan tautan gulir */
   document.addEventListener('click', e => {
-    if (document.body.classList.contains('is-admin')) return;
     const r = e.target.closest('[data-rfq]');
     if (r) { e.preventDefault(); openRfq(); return; }
     const s = e.target.closest('[data-scroll]');

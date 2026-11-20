@@ -1,4 +1,4 @@
-/* Helper bersama untuk storefront dan admin. */
+/* Helper storefront. */
 (function () {
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const $ = (s, r = document) => r.querySelector(s);
@@ -7,10 +7,9 @@
 
   let toastT;
   function toast(msg, bad = false) {
-    const admin = document.body.classList.contains('is-admin');
-    let t = $('.toast, .a-toast');
+    let t = $('.toast');
     if (!t) { t = document.createElement('div'); t.setAttribute('role', 'status'); document.body.appendChild(t); }
-    t.className = (admin ? 'a-toast' : 'toast') + (bad ? ' bad' : '');
+    t.className = 'toast' + (bad ? ' bad' : '');
     t.textContent = msg;
     clearTimeout(toastT);
     toastT = setTimeout(() => t.remove(), bad ? 5000 : 2800);
@@ -23,8 +22,6 @@
     set('meta[property="og:title"]', 'content', title);
     set('meta[property="og:description"]', 'content', desc);
     set('link[rel="canonical"]', 'href', (window.SITE_URL || location.origin + location.pathname.replace(/index\.html$/, '')));
-    const rb = $('meta[name="robots"]');
-    if (rb) rb.setAttribute('content', document.body.classList.contains('is-admin') ? 'noindex, nofollow' : 'index, follow');
   }
 
   /* modal aksesibel: fokus masuk, Esc menutup, fokus kembali */

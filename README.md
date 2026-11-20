@@ -1,10 +1,12 @@
 # Nusa Vanilla
 
-Toko ekspor vanili (single seller) dengan katalog publik, permintaan penawaran (RFQ), cek status RFQ, dan portal admin.
+Toko ekspor vanili (single seller) dengan katalog publik, permintaan penawaran (RFQ), dan cek status RFQ.
+
+**Portal admin sudah dipisah** ke repo `nusa-vanilla-admin` (https://izzarddddd.github.io/nusa-vanilla-admin/). Keduanya memakai satu project Supabase yang sama; skema database (`schema.sql`) tetap dikelola di repo ini.
 
 - **Frontend:** HTML/CSS/JavaScript statis, tanpa build step. Dihosting di GitHub Pages.
 - **Backend:** Supabase (PostgreSQL, Auth, Row Level Security). Aturan bisnis RFQ ada di fungsi database.
-- **Rute (hash):** `#/` katalog, `#/produk/:slug`, `#/rfq/status`, `#/admin/login`, `#/admin`, `#/admin/products`, `#/admin/inquiries`.
+- **Rute (hash):** `#/` katalog, `#/produk/:slug`, `#/rfq/status`.
 
 ## Menjalankan lokal
 ```
@@ -21,7 +23,7 @@ npm test          # test rumus harga dan validasi (Node bawaan, tanpa dependency
    insert into admins (user_id) select id from auth.users where email = 'EMAIL_ADMIN';
    ```
 5. Authentication → Sign In / Providers → Email: matikan *Enable sign ups*. Satu akun admin dibuat manual; tidak ada pendaftaran atau reset kata sandi di aplikasi.
-6. Produk dikelola dari `#/admin/products`. Produk contoh dari seed bisa diubah atau dihapus (soft-delete).
+6. Produk dikelola dari portal admin (repo `nusa-vanilla-admin`). Produk contoh dari seed bisa diubah atau dihapus (soft-delete).
 
 ## Deploy (GitHub Pages)
 Settings → Pages → Deploy from a branch → `main` / root. Setelah push, situs ada di `https://USERNAME.github.io/nusa-vanilla/`. Samakan `window.SITE_URL` di `config.js`.
@@ -35,14 +37,12 @@ index.html            cangkang halaman
 config.js             URL & anon key Supabase, SITE_URL, HERO_VIDEO_URL
 schema.sql            tabel, RLS, trigger, fungsi RPC
 css/styles.css        token, kaca (glass), storefront
-css/admin.css         portal admin (datar, zinc)
 js/lib.js             rumus harga & validasi (dipakai browser dan test)
 js/core.js            helper, toast, SEO, modal
 js/data.js            akses Supabase
 js/motion.js          reveal, kata demi kata, mengetik, count-up, cerita scroll, video hero
 js/decor.js           ilustrasi, peta rute, lencana, sulur, kalkulator
 js/public.js          landing, detail produk, modal RFQ, status RFQ
-js/admin.js           login, dashboard, produk, inquiry
 js/app.js             router
 tests/                test unit
 ```
@@ -56,8 +56,8 @@ tests/                test unit
 | Rate limit per IP | Per nomor RFQ (5 gagal/15 menit) dan jeda login yang membesar | IP klien tidak terlihat dari fungsi database. Rate limit per IP butuh Edge Function atau Cloudflare. |
 | Pustaka `motion` | Animasi memakai CSS + IntersectionObserver | Tanpa build step; perilaku sama (sekali jalan, transform/opacity). |
 | Vitest | `node --test` | Tanpa dependency. |
-| `/admin/login` | `#/admin/login` | Routing hash di GitHub Pages. |
-| Foto produk, foto cerita | Ilustrasi SVG pengganti | Foto belum disediakan. Isi `image_url` per produk dari admin. |
+| Admin di situs yang sama | Aplikasi admin terpisah (`nusa-vanilla-admin`), database sama | Admin dipisah dari situs publik; hanya login + RLS yang memberi akses. |
+| Foto produk, foto cerita | Ilustrasi SVG pengganti | Foto belum disediakan. Unggah foto per produk dari portal admin. |
 
 ## Belum dikerjakan / perlu keputusan pemilik
 - Sertifikasi (lencana "contoh"), negara tujuan di peta, dan `LOW_STOCK_KG` (25) menunggu konfirmasi. Lihat `js/decor.js` dan `js/lib.js`.
