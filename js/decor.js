@@ -12,12 +12,7 @@
     { name: 'Jebel Ali, Uni Emirat Arab', code: 'AE', lon: 55, lat: 25 },
     { name: 'Yokohama, Jepang', code: 'JP', lon: 139.6, lat: 35.4 }
   ];
-  const CERTS = [ // CONTOH: isi hanya sertifikasi yang benar-benar dimiliki. coa_url kosong = tanpa tombol COA.
-    { name: 'Organik', year: '', icon: 'leaf', coa_url: '' },
-    { name: 'HACCP', year: '', icon: 'shield', coa_url: '' },
-    { name: 'Halal', year: '', icon: 'seal', coa_url: '' },
-    { name: 'Uji laboratorium (COA)', year: '', icon: 'flask', coa_url: '' }
-  ];
+  const CERTS = []; // isi hanya sertifikasi yang benar-benar dimiliki, mis. { name: 'Halal', year: '2027', icon: 'seal', coa_url: '' }. coa_url kosong = tanpa tombol COA.
   const ICONS = {
     leaf: '<path d="M8 36C8 18 20 8 38 8c0 18-10 30-26 30" /><path d="M8 40 26 22" />',
     shield: '<path d="M24 6 8 12v12c0 10 7 15 16 18 9-3 16-8 16-18V12L24 6Z" /><path d="m17 24 5 5 9-10" />',
@@ -104,7 +99,8 @@
   }
 
   function certBadges() {
-    return `<div class="badges" data-stagger>${CERTS.map(c => `<div class="badge">${icon(c.icon)}<div><b>${esc(c.name)}<span class="tag-sample">contoh</span></b><small>${c.year ? 'Berlaku ' + esc(c.year) : 'Belum dikonfirmasi pemilik'}</small>${c.coa_url ? `<div><a class="btn sm ghost" href="${esc(c.coa_url)}" target="_blank" rel="noopener">Lihat COA</a></div>` : ''}</div></div>`).join('')}</div>`;
+    if (!CERTS.length) return '<p>Dokumen mutu dan hasil uji tersedia atas permintaan untuk setiap lot.</p>';
+    return `<div class="badges" data-stagger>${CERTS.map(c => `<div class="badge">${icon(c.icon)}<div><b>${esc(c.name)}</b>${c.year ? `<small>Berlaku ${esc(c.year)}</small>` : ''}${c.coa_url ? `<div><a class="btn sm ghost" href="${esc(c.coa_url)}" target="_blank" rel="noopener">Lihat COA</a></div>` : ''}</div></div>`).join('')}</div>`;
   }
 
   /* ───────── kalkulator estimasi: total = quantity × price_per_kg (NVLib.estimate) ───────── */

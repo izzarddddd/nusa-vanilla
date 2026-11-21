@@ -10,7 +10,7 @@
 
   const header = () => `<a class="skip" href="#main">Lewati ke konten</a>
     <header class="hdr glass"><a class="brand" href="#/">Nusa Vanilla</a>
-      <nav class="nav" aria-label="Utama"><a href="#/" data-scroll="katalog">Katalog</a><a href="#/" data-scroll="cerita">Dari kebun</a><a href="#/rfq/status">Cek status RFQ</a>
+      <nav class="nav" aria-label="Utama"><a href="#/" data-scroll="katalog">Katalog</a><a href="#/" data-scroll="cerita">Dari petani</a><a href="#/rfq/status">Cek status RFQ</a>
       <button class="btn sm" data-rfq type="button">Request Quotation (RFQ)</button></nav></header>`;
   const footer = () => `<footer class="foot"><div class="container"><div><b>Nusa Vanilla</b><p>Vanili Indonesia untuk industri pangan, perisa, dan kosmetik.</p></div>
     <div><a href="#/" data-scroll="katalog">Katalog</a><br><a href="#/rfq/status">Cek status RFQ</a></div><div>© <span>${new Date().getFullYear()}</span> Nusa Vanilla</div></div></footer>`;
@@ -28,10 +28,10 @@
 
   /* ───────── landing ───────── */
   const STAGES = [
-    ['Penyerbukan dan panen', 'Bunga vanili hanya mekar sehari, jadi penyerbukan dilakukan manual satu per satu. Polong dipanen saat matang di pohon.'],
+    ['Panen oleh petani mitra', 'Bunga vanili hanya mekar sehari, jadi penyerbukan dilakukan manual satu per satu oleh petani. Polong dipanen saat matang di pohon.'],
     ['Curing dan pengeringan', 'Polong hijau dilayukan, diperam, lalu dijemur bertahap selama beberapa minggu sampai cokelat tua, lentur, dan harum.'],
-    ['Grading dan uji mutu', 'Polong dipilah menurut panjang, kelembapan, dan aroma. Kadar air dan vanilin diperiksa, hasilnya tercatat di setiap produk.'],
-    ['Pengemasan dan ekspor', 'Polong dikemas rapat, lalu dokumen ekspor disiapkan: invoice, packing list, dan dokumen karantina sesuai negara tujuan.']
+    ['Grading dan seleksi mutu', 'Polong dipilah menurut panjang, kelembapan, dan aroma. Dokumen mutu dan hasil uji tersedia atas permintaan untuk setiap lot.'],
+    ['Pengemasan dan ekspor', 'Polong dikemas rapat, lalu dokumen ekspor disiapkan sesuai persyaratan negara tujuan.']
   ];
   function landingHTML() {
     return `${header()}<main id="main">
@@ -39,8 +39,8 @@
         <img class="poster" src="${HERO_POSTER}" alt="" width="1280" height="720" fetchpriority="high" decoding="async"><div class="hero-shade"></div></div>
       <div class="container hero-inner"><div class="hero-panel glass glass-dark">
         <h1 id="h1">Vanili Indonesia dengan mutu yang bisa Anda periksa</h1>
-        <p class="lede">Planifolia dan Tahitensis, lengkap dengan kadar air, panjang polong, dan vanilin di tiap produk. Minta penawaran dalam dua menit.</p>
-        <p class="tagline" data-typewriter>Planifolia &amp; Tahitensis, dari kebun ke pelabuhan ekspor.</p>
+        <p class="lede">Planifolia dan Tahitensis, lengkap dengan spesifikasi mutu tiap produk. Minta penawaran lewat formulir RFQ.</p>
+        <p class="tagline" data-typewriter>Planifolia &amp; Tahitensis, dari petani mitra ke pelabuhan ekspor.</p>
         <div class="hero-cta"><button class="btn" data-rfq type="button">Request Quotation (RFQ)</button><a class="btn ghost" href="#/" data-scroll="katalog">Lihat katalog</a></div></div></div>
       <span class="scroll-hint" aria-hidden="true">Gulir</span></section>
     <div class="strip container" id="strip" style="min-height:112px"></div>
@@ -49,14 +49,14 @@
       <form class="search" role="search" onsubmit="return false"><label class="sr-only" for="q">Cari produk</label><input id="q" type="search" placeholder="Cari nama atau grade" autocomplete="off"></form>
       <div class="grid" id="grid" aria-live="polite">${'<div class="skeleton" aria-hidden="true"></div>'.repeat(3)}</div></div></div>
     ${X.vine()}
-    <section class="blobs paper" id="cerita" aria-labelledby="cer-h"><div class="container" style="padding-top:var(--s8)"><div class="section-head" style="margin-bottom:var(--s5)"><h2 class="tr" id="cer-h">Dari kebun ke kontainer</h2><p>Empat tahap yang menentukan mutu polong sebelum sampai di pelabuhan Anda.</p></div></div>
+    <section class="blobs paper" id="cerita" aria-labelledby="cer-h"><div class="container" style="padding-top:var(--s8)"><div class="section-head" style="margin-bottom:var(--s5)"><h2 class="tr" id="cer-h">Dari petani mitra ke kontainer</h2><p>Empat tahap yang menentukan mutu polong sebelum sampai di pelabuhan Anda.</p></div></div>
       <div class="story"><div class="story-pin"><div class="container story-grid">
         <div class="story-art" aria-hidden="true">${X.STORY_ART.map((s, i) => s.replace('<svg', `<svg class="${i === 0 ? 'on' : ''}"`)).join('')}</div>
         <div class="story-side"><div class="story-line" aria-hidden="true"><i></i></div><div class="story-panels">${STAGES.map(([t, d], i) => `<div class="stage glass ${i === 0 ? 'on' : ''}"><div class="mini" aria-hidden="true">${X.STORY_ART[i]}</div><span class="num">Tahap ${i + 1} dari 4</span><h3>${t}</h3><p>${d}</p></div>`).join('')}</div></div>
       </div></div></div></section>
     ${X.vine()}
     <section class="section blobs" aria-labelledby="eks-h"><div class="container"><div class="section-head"><h2 class="tr" id="eks-h">Rute ekspor dan sertifikasi</h2><p>Dari Jawa ke pelabuhan tujuan pembeli. Dokumen ekspor dan sertifikasi mengikuti persyaratan negara tujuan.</p></div>
-      <div class="export-grid">${X.exportMap()}<div data-reveal><h3 style="margin-bottom:var(--s4);font-size:1.4rem">Sertifikasi dan COA</h3>${X.certBadges()}<p class="note">Lencana berlabel "contoh" belum dikonfirmasi pemilik dan akan diganti dengan sertifikasi yang dimiliki.</p></div></div></div></section>
+      <div class="export-grid">${X.exportMap()}<div data-reveal><h3 style="margin-bottom:var(--s4);font-size:1.4rem">Sertifikasi dan COA</h3>${X.certBadges()}</div></div></div></section>
     <section class="cta" aria-labelledby="cta-h"><div class="container"><h2 class="tr" id="cta-h">Butuh penawaran untuk volume Anda?</h2><p>Sebutkan jenis vanili, volume, dan negara tujuan. Kami kirim penawaran resmi lewat email.</p><button class="btn" data-rfq type="button">Request Quotation (RFQ)</button></div></section></main>${footer()}`;
   }
 
@@ -83,7 +83,8 @@
       $('#q', app).addEventListener('input', () => render(false));
       grid.addEventListener('click', e => { if (e.target.closest('[data-clear]')) { $('#q', app).value = ''; render(false); } });
     } catch (err) {
-      grid.innerHTML = `<div class="empty glass"><p>Katalog belum bisa dimuat. ${esc(err.message)}</p><button class="btn sm" type="button" data-retry>Coba lagi</button></div>`;
+      console.warn('Katalog gagal dimuat:', err);
+      grid.innerHTML = `<div class="empty glass"><p>Katalog sedang tidak bisa ditampilkan. Hubungi kami untuk katalog terbaru.</p><button class="btn sm" type="button" data-retry>Coba lagi</button></div>`;
       grid.addEventListener('click', e => { if (e.target.closest('[data-retry]')) landing(app); });
     }
   }
@@ -92,7 +93,7 @@
   async function productPage(app, slug) {
     app.innerHTML = `${header()}<main id="main" class="pd blobs"><div class="container"><div class="skeleton" style="min-height:480px"></div></div></main>`;
     let p;
-    try { p = await D.product(slug); } catch (e) { p = undefined; app.querySelector('.container').innerHTML = `<div class="empty glass"><p>Produk belum bisa dimuat. ${esc(e.message)}</p><a class="btn sm" href="#/produk/${esc(slug)}">Coba lagi</a></div>`; M.scan(app); return; }
+    try { p = await D.product(slug); } catch (e) { p = undefined; app.querySelector('.container').innerHTML = `<div class="empty glass"><p>Produk sedang tidak bisa ditampilkan. Hubungi kami untuk informasi produk.</p><a class="btn sm" href="#/produk/${esc(slug)}">Coba lagi</a></div>`; M.scan(app); return; }
     if (!p) return notFound(app, 'Produk tidak ditemukan atau sudah tidak tersedia.');
     seo(`${p.name} | Nusa Vanilla`, `${p.name}, ${p.grade}. Kadar air ${nf(p.moisture_percentage)}%, vanilin ${nf(p.vanillin_percentage)}%. Harga referensi ${L.formatUSD(p.price_per_kg)}/kg.`);
     const rows = [p.length_cm ? ['Panjang polong', p.length_cm, 25, 1, ' cm'] : null, ['Kadar air', p.moisture_percentage, 40, 1, '%'], ['Kadar vanilin', p.vanillin_percentage, 3, 1, '%']].filter(Boolean);
@@ -129,7 +130,7 @@
   const field = (id, label, extra = '', tag = 'input') => `<div><label class="l" for="f-${id}">${label}</label>${tag === 'textarea' ? `<textarea class="field" id="f-${id}" name="${id}" rows="3" maxlength="1000" aria-describedby="e-${id}"></textarea>` : `<input class="field" id="f-${id}" name="${id}" ${extra} aria-describedby="e-${id}">`}<div class="err" id="e-${id}" aria-live="polite"></div></div>`;
   async function openRfq({ product, qty = 10 } = {}) {
     let list = [];
-    try { list = await products(); } catch (_) { toast('Katalog belum bisa dimuat. Coba lagi.', true); return; }
+    try { list = await products(); } catch (_) { toast('Katalog sedang tidak bisa ditampilkan. Coba lagi.', true); return; }
     if (product && !list.some(x => x.id === product.id)) list = [product, ...list];
     let cur = product || list[0]; if (!cur) { toast('Belum ada produk yang tersedia.', true); return; }
     const key = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
