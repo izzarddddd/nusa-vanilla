@@ -1,4 +1,4 @@
-# Nusa Vanilla
+# Tropic Bean Co.
 
 Toko ekspor vanili (single seller) dengan katalog publik, permintaan penawaran (RFQ), dan cek status RFQ.
 

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-11-21
+- Nama merek diganti dari "Nusa Vanilla" menjadi "Tropic Bean Co." (judul, og:*, header, footer, terjemahan, README). URL situs, nama repo `nusa-vanilla`, dan nama paket sengaja tidak diubah.
 - Multibahasa tahap 2-3: terjemahan fr, es (dirilis di pemilih) serta ja, ko (draf AI, belum dirilis: buka lewat `?lang=ja` / `?lang=ko`, ubah `released: true` di `js/i18n.js` setelah ditinjau penutur asli). Font Noto Sans JP/KR dimuat hanya saat dipakai (display=swap), judul serif diganti sans, `word-break: keep-all` (ko), `line-break: strict` + `auto-phrase` (ja). Animasi judul memecah teks Jepang lewat `Intl.Segmenter` (sebelumnya satu kalimat jadi satu blok lebar). Header ponsel dirapikan agar pemilih bahasa dan tombol RFQ muat di 390px. Tes i18n kini mencakup keenam bahasa.
 - `schema.sql`: terjemahan fr/es/ja/ko untuk deskripsi produk awal (belum dijalankan di Supabase).
 

@@ -1,4 +1,4 @@
--- Nusa Vanilla v2: katalog vanili + RFQ (single seller)
+-- Tropic Bean Co. v2: katalog vanili + RFQ (single seller)
 -- Jalankan di Supabase → SQL Editor → New query → Run. Aman dijalankan ulang.
 
 -- ───────── Admin ─────────

@@ -14,11 +14,11 @@
 
   const langPicker = () => `<label class="sr-only" for="lang">${TE('lang.label')}</label><select class="lang" id="lang" data-lang>${I.pickerLangs().map(l => `<option value="${l.code}" lang="${l.code}" ${l.code === I.lang ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>`;
   const header = () => `<a class="skip" href="#main">${TE('skip')}</a>
-    <header class="hdr glass"><a class="brand" href="#/">Nusa Vanilla</a>
+    <header class="hdr glass"><a class="brand" href="#/">Tropic Bean Co.</a>
       <nav class="nav" aria-label="${TE('nav.main')}"><a href="#/" data-scroll="katalog">${TE('nav.catalog')}</a><a href="#/" data-scroll="cerita">${TE('nav.supply')}</a><a href="#/rfq/status">${TE('nav.status')}</a>${langPicker()}
       <button class="btn sm" data-rfq type="button">${TE('rfq.cta')}</button></nav></header>`;
-  const footer = () => `<footer class="foot"><div class="container"><div><b>Nusa Vanilla</b><p>${TE('footer.tagline')}</p></div>
-    <div><a href="#/" data-scroll="katalog">${TE('nav.catalog')}</a><br><a href="#/rfq/status">${TE('nav.status')}</a></div><div>© <span>${new Date().getFullYear()}</span> Nusa Vanilla</div></div></footer>`;
+  const footer = () => `<footer class="foot"><div class="container"><div><b>Tropic Bean Co.</b><p>${TE('footer.tagline')}</p></div>
+    <div><a href="#/" data-scroll="katalog">${TE('nav.catalog')}</a><br><a href="#/rfq/status">${TE('nav.status')}</a></div><div>© <span>${new Date().getFullYear()}</span> Tropic Bean Co.</div></div></footer>`;
 
   const stockNote = p => p.status === 'OUT_OF_STOCK' ? `<span class="chip warn">${TE('stock.out')}</span>` : L.isLowStock(p) ? `<span class="meta"><span class="lowdot" aria-hidden="true"></span>${TE('stock.low', { n: nf(p.stock_kg) })}</span>` : `<span class="meta">${TE('stock.ok', { n: nf(p.stock_kg) })}</span>`;
 
@@ -95,7 +95,7 @@
     let p;
     try { p = await D.product(slug); } catch (e) { p = undefined; app.querySelector('.container').innerHTML = `<div class="empty glass"><p>${TE('pd.error')}</p><a class="btn sm" href="#/produk/${esc(slug)}">${TE('retry')}</a></div>`; M.scan(app); return; }
     if (!p) return notFound(app, T('pd.notfound'));
-    seo(`${p.name} | Nusa Vanilla`, T('pd.seo', { name: p.name, grade: p.grade, moisture: nf(p.moisture_percentage), vanillin: nf(p.vanillin_percentage), price: I.usd(p.price_per_kg) }));
+    seo(`${p.name} | Tropic Bean Co.`, T('pd.seo', { name: p.name, grade: p.grade, moisture: nf(p.moisture_percentage), vanillin: nf(p.vanillin_percentage), price: I.usd(p.price_per_kg) }));
     const rows = [p.length_cm ? [T('pd.length'), p.length_cm, 25, 1, ' cm'] : null, [T('pd.moisture'), p.moisture_percentage, 40, 1, '%'], [T('pd.vanillin'), p.vanillin_percentage, 3, 1, '%']].filter(Boolean);
     app.innerHTML = `${header()}<main id="main" class="pd blobs"><div class="container">
       <p class="crumb"><a href="#/" data-scroll="katalog">${TE('pd.back')}</a></p>
@@ -187,7 +187,7 @@
   /* ───────── cek status RFQ ───────── */
   const STEPS = ['PENDING', 'QUOTED', 'CONFIRMED'];
   function statusPage(app) {
-    seo(T('status.title') + ' | Nusa Vanilla', T('status.seo'));
+    seo(T('status.title') + ' | Tropic Bean Co.', T('status.seo'));
     const pre = decodeURIComponent((location.hash.split('?no=')[1] || '').split('&')[0]);
     app.innerHTML = `${header()}<main id="main" class="blobs"><div class="status-wrap container"><h1 style="font-size:clamp(2rem,4vw,2.8rem)">${TE('status.title')}</h1>
       <p class="meta" style="margin:var(--s3) 0 var(--s5)">${TE('status.intro')}</p>
@@ -218,7 +218,7 @@
   }
 
   function notFound(app, msg) {
-    seo(T('nf.title') + ' | Nusa Vanilla', T('nf.seo'));
+    seo(T('nf.title') + ' | Tropic Bean Co.', T('nf.seo'));
     app.innerHTML = `<main id="main" class="nf blobs"><div><h1>404</h1><p style="margin:var(--s3) 0 var(--s5)">${esc(msg || T('nf.msg'))}</p><a class="btn" href="#/">${TE('nf.back')}</a></div></main>`;
     M.scan(app);
   }
