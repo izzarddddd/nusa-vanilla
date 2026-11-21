@@ -6,9 +6,9 @@
     { code: 'en', name: 'English', locale: 'en-US', released: true },
     { code: 'fr', name: 'Français', locale: 'fr-FR', released: true },
     { code: 'es', name: 'Español', locale: 'es-ES', released: true },
-    // ja dan ko: draf terjemahan AI, ubah released ke true setelah ditinjau penutur asli (PRD Bagian 2)
-    { code: 'ja', name: '日本語', locale: 'ja-JP', released: false, font: 'Noto+Sans+JP' },
-    { code: 'ko', name: '한국어', locale: 'ko-KR', released: false, font: 'Noto+Sans+KR' }
+    // ja dan ko: draf terjemahan AI yang belum ditinjau penutur asli (PRD Bagian 2). Ubah ke released: false untuk menyembunyikan dari pemilih.
+    { code: 'ja', name: '日本語', locale: 'ja-JP', released: true, font: 'Noto+Sans+JP' },
+    { code: 'ko', name: '한국어', locale: 'ko-KR', released: true, font: 'Noto+Sans+KR' }
   ];
   const FALLBACK = ['en', 'id'];
   const dict = {};
