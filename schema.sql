@@ -343,3 +343,33 @@ select p.id, 'en', v.d, v.g from vanilla_products p join (values
   ('cuts-and-splits', 'Cut and split beans for economical extraction. Currently out of stock; contact us for the next harvest.', null)
 ) as v(slug, d, g) on v.slug = p.slug
 on conflict (product_id, lang) do nothing;
+
+-- Terjemahan fr/es/ja/ko untuk produk awal. ja dan ko adalah draf AI: tinjau penutur asli sebelum dirilis (PRD Bagian 2).
+insert into product_translations (product_id, lang, description, grade)
+select p.id, v.lang, v.d, v.g from vanilla_products p join (values
+  ('planifolia-gourmet', 'fr', 'Gousses charnues et huileuses, brun foncé, à l''arôme doux et crémeux. Pour la pâtisserie, les glaces et les produits de détail haut de gamme.', null),
+  ('planifolia-gourmet', 'es', 'Vainas carnosas y aceitosas, de color marrón oscuro, con un aroma dulce y cremoso. Para pastelería, helados y productos minoristas premium.', null),
+  ('planifolia-gourmet', 'ja', 'ふっくらと油分のある濃い茶色のビーンズで、甘くクリーミーな香りです。製菓、アイスクリーム、プレミアム小売商品に適しています。', null),
+  ('planifolia-gourmet', 'ko', '통통하고 기름기가 있는 짙은 갈색 빈으로, 달콤하고 크리미한 향이 납니다. 제과, 아이스크림, 프리미엄 소매 제품에 적합합니다.', null),
+  ('planifolia-extraction', 'fr', 'Gousses plus sèches à fort rendement en vanilline. Adaptées à la production d''extraits et aux arômes industriels.', null),
+  ('planifolia-extraction', 'es', 'Vainas más secas con alto rendimiento de vainillina. Adecuadas para la producción de extractos y aromas industriales.', null),
+  ('planifolia-extraction', 'ja', '水分が少なく、バニリンの収率が高いビーンズです。エキス製造や工業用フレーバーに適しています。', null),
+  ('planifolia-extraction', 'ko', '수분이 적고 바닐린 수율이 높은 빈입니다. 추출물 제조와 산업용 향료에 적합합니다.', null),
+  ('tahitensis-gourmet', 'fr', 'Notes florales et de cerise, issues des hautes terres de Papouasie. Recherchées par les chefs et les parfumeurs.', null),
+  ('tahitensis-gourmet', 'es', 'Notas florales y de cereza procedentes de las tierras altas de Papúa. Muy buscadas por chefs y perfumistas.', null),
+  ('tahitensis-gourmet', 'ja', 'パプアの高地で育った、花とチェリーを思わせる香りです。シェフや調香師に求められています。', null),
+  ('tahitensis-gourmet', 'ko', '파푸아 고원 지대에서 자란 꽃향기와 체리 향이 특징입니다. 셰프와 조향사들이 찾는 제품입니다.', null),
+  ('tahitensis-extraction', 'fr', 'Gousses de Tahitensis destinées à l''extraction, au caractère floral délicat.', null),
+  ('tahitensis-extraction', 'es', 'Vainas Tahitensis para extracción, con un carácter floral suave.', null),
+  ('tahitensis-extraction', 'ja', 'エキス抽出用のタヒテンシス・ビーンズで、やわらかなフローラルの特徴があります。', null),
+  ('tahitensis-extraction', 'ko', '추출용 타히텐시스 빈으로, 부드러운 플로럴 특성을 지니고 있습니다.', null),
+  ('planifolia-powder', 'fr', 'Gousses entières moulues sans additifs. Pour la boulangerie, les boissons et les cosmétiques.', 'Poudre, qualité alimentaire'),
+  ('planifolia-powder', 'es', 'Vainas enteras molidas sin aditivos. Para panadería, bebidas y cosmética.', 'Polvo, grado alimentario'),
+  ('planifolia-powder', 'ja', 'ビーンズを丸ごと、添加物なしで粉砕しました。ベーカリー、飲料、化粧品向けです。', 'パウダー、食品グレード'),
+  ('planifolia-powder', 'ko', '첨가물 없이 통째로 분쇄한 빈입니다. 제빵, 음료, 화장품에 사용됩니다.', '분말, 식품 등급'),
+  ('cuts-and-splits', 'fr', 'Gousses coupées et fendues pour une extraction économique. Actuellement en rupture de stock ; contactez-nous pour la prochaine récolte.', null),
+  ('cuts-and-splits', 'es', 'Vainas cortadas y abiertas para una extracción económica. Actualmente sin stock; contáctenos para la próxima cosecha.', null),
+  ('cuts-and-splits', 'ja', '経済的なエキス抽出に適した、カットおよびスプリットのビーンズです。現在在庫切れです。次回の収穫についてはお問い合わせください。', null),
+  ('cuts-and-splits', 'ko', '경제적인 추출을 위한 절단 및 분할 빈입니다. 현재 품절이며, 다음 수확분은 문의해 주십시오.', null)
+) as v(slug, lang, d, g) on v.slug = p.slug
+on conflict (product_id, lang) do nothing;

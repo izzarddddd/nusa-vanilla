@@ -1,6 +1,9 @@
 # Changelog
 
 ## 2026-11-21
+- Multibahasa tahap 2-3: terjemahan fr, es (dirilis di pemilih) serta ja, ko (draf AI, belum dirilis: buka lewat `?lang=ja` / `?lang=ko`, ubah `released: true` di `js/i18n.js` setelah ditinjau penutur asli). Font Noto Sans JP/KR dimuat hanya saat dipakai (display=swap), judul serif diganti sans, `word-break: keep-all` (ko), `line-break: strict` + `auto-phrase` (ja). Animasi judul memecah teks Jepang lewat `Intl.Segmenter` (sebelumnya satu kalimat jadi satu blok lebar). Header ponsel dirapikan agar pemilih bahasa dan tombol RFQ muat di 390px. Tes i18n kini mencakup keenam bahasa.
+- `schema.sql`: terjemahan fr/es/ja/ko untuk deskripsi produk awal (belum dijalankan di Supabase).
+
 - Multibahasa tahap 1 (id + en), PRD Bagian 2: `js/i18n.js` + `i18n/id.json`/`en.json`, pemilih bahasa di header (disimpan di localStorage, awal dari bahasa browser, cadangan en), angka/tanggal/USD mengikuti bahasa, pesan galat server diterjemahkan lewat kode. `NVLib.validateRfq(p, msg)` menerima pesan opsional (kompatibel dengan repo admin). Tagline hero tidak lagi terpotong (batas typewriter 90 huruf).
 - `schema.sql`: tabel `product_translations` (6 kode bahasa) + terjemahan Inggris produk awal. Situs tetap jalan bila tabel belum ada (teks sumber id). Tes baru `tests/i18n.test.js`.
 

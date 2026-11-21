@@ -32,13 +32,16 @@
     const els = [...scope.querySelectorAll('.tr')];
     if (reduced) return;
     els.forEach(el => {
-      const words = el.textContent.trim().split(/\s+/);
+      const text = el.textContent.trim();
+      /* Jepang tidak memakai spasi: pecah per kata lewat Intl.Segmenter agar baris bisa terputus (tanpa itu satu kalimat jadi satu blok yang melebar) */
+      const segmented = !/\s/.test(text) && window.Intl && Intl.Segmenter;
+      const words = segmented ? [...new Intl.Segmenter(document.documentElement.lang, { granularity: 'word' }).segment(text)].map(g => g.segment) : text.split(/\s+/);
       el.textContent = '';
       words.forEach((w, i) => {
         const s = document.createElement('span');
         s.className = 'tr-word';
         s.style.setProperty('--word-delay', Math.min(i, 11) * 85 + 'ms');
-        s.textContent = w + (i < words.length - 1 ? ' ' : '');
+        s.textContent = w + (!segmented && i < words.length - 1 ? ' ' : '');
         el.appendChild(s);
       });
     });

@@ -12,7 +12,7 @@
   const errText = r => (r && I.t('err.' + r.code)) || (r && r.message) || T('rfq.notSent');
   const products = async (force) => (cache && !force ? cache : (cache = await D.products()));
 
-  const langPicker = () => `<label class="sr-only" for="lang">${TE('lang.label')}</label><select class="lang" id="lang" data-lang>${I.LANGS.map(l => `<option value="${l.code}" lang="${l.code}" ${l.code === I.lang ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>`;
+  const langPicker = () => `<label class="sr-only" for="lang">${TE('lang.label')}</label><select class="lang" id="lang" data-lang>${I.pickerLangs().map(l => `<option value="${l.code}" lang="${l.code}" ${l.code === I.lang ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>`;
   const header = () => `<a class="skip" href="#main">${TE('skip')}</a>
     <header class="hdr glass"><a class="brand" href="#/">Nusa Vanilla</a>
       <nav class="nav" aria-label="${TE('nav.main')}"><a href="#/" data-scroll="katalog">${TE('nav.catalog')}</a><a href="#/" data-scroll="cerita">${TE('nav.supply')}</a><a href="#/rfq/status">${TE('nav.status')}</a>${langPicker()}

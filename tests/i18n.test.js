@@ -2,18 +2,30 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const L = require('../js/lib.js');
+const fs = require('node:fs');
 const id = require('../i18n/id.json');
-const en = require('../i18n/en.json');
+const files = fs.readdirSync(__dirname + '/../i18n').filter(f => f.endsWith('.json')).map(f => f.replace('.json', ''));
+const all = Object.fromEntries(files.map(c => [c, require('../i18n/' + c + '.json')]));
 
 const ph = s => (String(s).match(/\{\w+\}/g) || []).sort().join();
 
-test('i18n: id dan en punya kunci yang sama dan tidak kosong', () => {
-  assert.deepEqual(Object.keys(en).sort(), Object.keys(id).sort());
-  for (const k of Object.keys(id)) { assert.ok(id[k].trim(), 'id kosong: ' + k); assert.ok(en[k].trim(), 'en kosong: ' + k); }
+test('i18n: keenam bahasa ada', () => {
+  assert.deepEqual(files.sort(), ['en', 'es', 'fr', 'id', 'ja', 'ko']);
+});
+
+test('i18n: semua bahasa punya kunci yang sama dan tidak kosong', () => {
+  for (const [c, d] of Object.entries(all)) {
+    assert.deepEqual(Object.keys(d).sort(), Object.keys(id).sort(), c);
+    for (const k of Object.keys(id)) assert.ok(String(d[k]).trim(), c + ' kosong: ' + k);
+  }
 });
 
 test('i18n: placeholder {x} sama di semua bahasa', () => {
-  for (const k of Object.keys(id)) assert.equal(ph(en[k]), ph(id[k]), k);
+  for (const [c, d] of Object.entries(all)) for (const k of Object.keys(id)) assert.equal(ph(d[k]), ph(id[k]), c + ': ' + k);
+});
+
+test('i18n: tagline hero muat di batas typewriter (90 huruf)', () => {
+  for (const [c, d] of Object.entries(all)) assert.ok([...d['hero.tagline']].length <= 90, c);
 });
 
 test('validateRfq: pesan bisa diganti, bawaan tetap Indonesia', () => {
