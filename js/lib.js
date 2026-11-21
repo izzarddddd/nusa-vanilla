@@ -10,27 +10,33 @@
   /** total_estimasi = quantity * price_per_kg (dibulatkan 2 desimal) */
   const estimate = (quantityKg, pricePerKg) => round2(Number(quantityKg) * Number(pricePerKg));
 
-  const formatUSD = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n);
+  const formatUSD = (n, locale = 'en-US') => new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 2 }).format(n);
 
   const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   const PHONE_RE = /^[+0-9 ()-]{6,30}$/;
   const CONTROL_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F]/;
 
-  /** Kembalikan { nama_field: pesan } — kosong berarti valid. Database menegakkan aturan yang sama. */
-  function validateRfq(p) {
-    const e = {};
+  const RFQ_MSG = {
+    company_name: 'Isi nama perusahaan.', contact_name: 'Isi nama kontak.', email: 'Masukkan email yang valid.', phone: 'Masukkan nomor kontak yang valid.',
+    country: 'Isi negara tujuan.', qty_min: 'Kuantitas pemesanan minimal 1 kg.', qty_dec: 'Maksimal 2 angka desimal.', qty_max: 'Kuantitas terlalu besar. Hubungi kami.',
+    notes: 'Catatan maksimal 1000 karakter tanpa karakter kontrol.'
+  };
+
+  /** Kembalikan { nama_field: pesan } — kosong berarti valid. Database menegakkan aturan yang sama. `msg` (opsional) mengganti teks pesan, mis. untuk terjemahan. */
+  function validateRfq(p, msg) {
+    const e = {}, m = { ...RFQ_MSG, ...msg };
     const t = v => String(v ?? '').trim();
-    if (t(p.company_name).length < 2) e.company_name = 'Isi nama perusahaan.';
-    if (t(p.contact_name).length < 2) e.contact_name = 'Isi nama kontak.';
-    if (!EMAIL_RE.test(t(p.email)) || t(p.email).length > 254) e.email = 'Masukkan email yang valid.';
-    if (!PHONE_RE.test(t(p.phone))) e.phone = 'Masukkan nomor kontak yang valid.';
-    if (t(p.country).length < 2) e.country = 'Isi negara tujuan.';
+    if (t(p.company_name).length < 2) e.company_name = m.company_name;
+    if (t(p.contact_name).length < 2) e.contact_name = m.contact_name;
+    if (!EMAIL_RE.test(t(p.email)) || t(p.email).length > 254) e.email = m.email;
+    if (!PHONE_RE.test(t(p.phone))) e.phone = m.phone;
+    if (t(p.country).length < 2) e.country = m.country;
     const q = Number(p.quantity_kg);
-    if (p.quantity_kg === '' || p.quantity_kg == null || !Number.isFinite(q) || q < 1) e.quantity_kg = 'Kuantitas pemesanan minimal 1 kg.';
-    else if (decimals(p.quantity_kg) > 2) e.quantity_kg = 'Maksimal 2 angka desimal.';
-    else if (q > 100000) e.quantity_kg = 'Kuantitas terlalu besar. Hubungi kami.';
+    if (p.quantity_kg === '' || p.quantity_kg == null || !Number.isFinite(q) || q < 1) e.quantity_kg = m.qty_min;
+    else if (decimals(p.quantity_kg) > 2) e.quantity_kg = m.qty_dec;
+    else if (q > 100000) e.quantity_kg = m.qty_max;
     const n = t(p.notes);
-    if (n.length > 1000 || CONTROL_RE.test(n)) e.notes = 'Catatan maksimal 1000 karakter tanpa karakter kontrol.';
+    if (n.length > 1000 || CONTROL_RE.test(n)) e.notes = m.notes;
     return e;
   }
 

@@ -5,17 +5,32 @@
   const num = r => ({ ...r, length_cm: +r.length_cm, moisture_percentage: +r.moisture_percentage, vanillin_percentage: +r.vanillin_percentage, price_per_kg: +r.price_per_kg, stock_kg: +r.stock_kg });
   const fail = e => { const err = new Error(e.message || 'Terjadi kesalahan'); err.code = e.code; throw err; };
 
+  /* terjemahan per produk: bahasa aktif, lalu en, lalu teks sumber (id). Tabel belum ada/gagal dibaca = teks sumber. */
+  async function localize(list) {
+    const lang = window.NVI18N.lang;
+    if (lang === 'id' || !list.length) return list;
+    const { data, error } = await sb.from('product_translations').select('product_id,lang,name,description,grade').in('lang', [lang, 'en']);
+    if (error || !data) return list;
+    const by = {};
+    for (const r of data) (by[r.product_id] = by[r.product_id] || {})[r.lang] = r;
+    return list.map(p => {
+      const t = by[p.id]; if (!t) return p;
+      const pick = f => (t[lang] && t[lang][f]) || (t.en && t.en[f]) || p[f];
+      return { ...p, name: pick('name'), description: pick('description'), grade: pick('grade') };
+    });
+  }
+
   const D = {
     sb,
     async products() {
       const { data, error } = await sb.from('vanilla_products').select(PUB_COLS).is('deleted_at', null).neq('status', 'ARCHIVED').order('created_at');
       if (error) fail(error);
-      return data.map(num).sort((p, q) => (p.status === 'OUT_OF_STOCK') - (q.status === 'OUT_OF_STOCK') || q.price_per_kg - p.price_per_kg);
+      return (await localize(data.map(num))).sort((p, q) => (p.status === 'OUT_OF_STOCK') - (q.status === 'OUT_OF_STOCK') || q.price_per_kg - p.price_per_kg);
     },
     async product(slug) {
       const { data, error } = await sb.from('vanilla_products').select(PUB_COLS).eq('slug', slug).is('deleted_at', null).neq('status', 'ARCHIVED').maybeSingle();
       if (error) fail(error);
-      return data ? num(data) : null;
+      return data ? (await localize([num(data)]))[0] : null;
     },
     async createInquiry(p, key) {
       const { data, error } = await sb.rpc('create_inquiry', {

@@ -311,3 +311,35 @@ do $$ begin
     create policy "product images admin write" on storage.objects for all using (bucket_id = 'product-images' and is_admin()) with check (bucket_id = 'product-images' and is_admin());
   end if;
 end $$;
+
+-- Terjemahan katalog (i18n). Teks sumber tetap di vanilla_products (id); baris di sini opsional per bahasa.
+-- Tampilan: bahasa aktif, lalu en, lalu teks sumber. Kolom kosong (null) = pakai cadangan.
+create table if not exists product_translations (
+  product_id uuid not null references vanilla_products(id) on delete cascade,
+  lang text not null check (lang in ('id', 'en', 'ja', 'ko', 'fr', 'es')),
+  name text,
+  description text,
+  grade text,
+  primary key (product_id, lang)
+);
+alter table product_translations enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename = 'product_translations' and policyname = 'public read translations') then
+    create policy "public read translations" on product_translations for select using (true);
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'product_translations' and policyname = 'admin write translations') then
+    create policy "admin write translations" on product_translations for all using (is_admin()) with check (is_admin());
+  end if;
+end $$;
+
+-- Terjemahan Inggris untuk produk awal (aman diulang; tidak menimpa suntingan yang sudah ada)
+insert into product_translations (product_id, lang, description, grade)
+select p.id, 'en', v.d, v.g from vanilla_products p join (values
+  ('planifolia-gourmet', 'Plump, oily, dark brown beans with a sweet, creamy aroma. For pastry, ice cream, and premium retail products.', null),
+  ('planifolia-extraction', 'Drier beans with a high vanillin yield. Suited to extract production and industrial flavorings.', null),
+  ('tahitensis-gourmet', 'Floral and cherry notes from the highlands of Papua. Sought after by chefs and perfumers.', null),
+  ('tahitensis-extraction', 'Tahitensis beans for extraction with a soft floral character.', null),
+  ('planifolia-powder', 'Whole beans ground without additives. For bakery, beverages, and cosmetics.', 'Powder, food grade'),
+  ('cuts-and-splits', 'Cut and split beans for economical extraction. Currently out of stock; contact us for the next harvest.', null)
+) as v(slug, d, g) on v.slug = p.slug
+on conflict (product_id, lang) do nothing;

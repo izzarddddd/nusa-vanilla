@@ -17,5 +17,6 @@
     if (!/^\/$/.test(path)) window.scrollTo(0, 0);
   }
   addEventListener('hashchange', route);
-  route();
+  addEventListener('nv-lang', route);
+  window.NVI18N.init().then(route);
 })();

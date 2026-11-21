@@ -49,7 +49,7 @@
   function typewriter(scope) {
     scope.querySelectorAll('[data-typewriter]').forEach(el => {
       if (reduced) return;
-      const text = el.textContent.trim().slice(0, 60);
+      const text = el.textContent.trim().slice(0, 90);
       el.setAttribute('aria-label', text);
       el.textContent = '';
       const chars = [...text].map(c => { const s = document.createElement('span'); s.className = 'tw-ch'; s.setAttribute('aria-hidden', 'true'); s.textContent = c; el.appendChild(s); return s; });
@@ -163,7 +163,7 @@
   function galleryCursor(scope) {
     const g = scope.querySelector('.gallery');
     if (!g || reduced || !fine) return;
-    const cur = document.createElement('div'); cur.className = 'gcursor'; cur.textContent = 'Lihat'; cur.setAttribute('aria-hidden', 'true'); document.body.appendChild(cur);
+    const cur = document.createElement('div'); cur.className = 'gcursor'; cur.textContent = window.NVI18N.t('cursor.view'); cur.setAttribute('aria-hidden', 'true'); document.body.appendChild(cur);
     const mv = e => { cur.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`; };
     g.addEventListener('pointerenter', () => cur.classList.add('on'));
     g.addEventListener('pointerleave', () => cur.classList.remove('on'));

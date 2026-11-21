@@ -1,6 +1,6 @@
 /* Elemen dekoratif & ilustrasi storefront: seni polong (pengganti foto), peta rute, lencana, sulur, kalkulator. */
 (function () {
-  const L = window.NVLib;
+  const L = window.NVLib, I = window.NVI18N, T = (k, v) => I.t(k, v);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   /* ───────── konfigurasi statis (bukan dari database) ───────── */
@@ -55,7 +55,7 @@
       }).join('');
       body = `<g transform="rotate(${rot} 200 150)">${pods}<rect x="${96 + spread * 0.38}" y="168" width="${22 + n}" height="58" rx="5" fill="#b8955a" transform="rotate(36 ${110 + spread * 0.38} 196)"/></g>`;
     }
-    return `<svg viewBox="0 0 400 300" role="img" aria-label="Ilustrasi ${esc(p.name)}" preserveAspectRatio="xMidYMid slice">${bg}${body}</svg>`;
+    return `<svg viewBox="0 0 400 300" role="img" aria-label="${esc(T('art.alt', { name: p.name }))}" preserveAspectRatio="xMidYMid slice">${bg}${body}</svg>`;
   }
   const image = (p, v = 0) => (p.image_url && v === 0 ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" width="400" height="300" loading="lazy">` : art(p, v));
 
@@ -99,30 +99,30 @@
   }
 
   function certBadges() {
-    if (!CERTS.length) return '<p>Dokumen mutu dan hasil uji tersedia atas permintaan untuk setiap lot.</p>';
-    return `<div class="badges" data-stagger>${CERTS.map(c => `<div class="badge">${icon(c.icon)}<div><b>${esc(c.name)}</b>${c.year ? `<small>Berlaku ${esc(c.year)}</small>` : ''}${c.coa_url ? `<div><a class="btn sm ghost" href="${esc(c.coa_url)}" target="_blank" rel="noopener">Lihat COA</a></div>` : ''}</div></div>`).join('')}</div>`;
+    if (!CERTS.length) return `<p>${esc(T('docs.none'))}</p>`;
+    return `<div class="badges" data-stagger>${CERTS.map(c => `<div class="badge">${icon(c.icon)}<div><b>${esc(c.name)}</b>${c.year ? `<small>${esc(T('docs.valid', { year: c.year }))}</small>` : ''}${c.coa_url ? `<div><a class="btn sm ghost" href="${esc(c.coa_url)}" target="_blank" rel="noopener">${esc(T('docs.coa'))}</a></div>` : ''}</div></div>`).join('')}</div>`;
   }
 
   /* ───────── kalkulator estimasi: total = quantity × price_per_kg (NVLib.estimate) ───────── */
   function calculator(p, qty = 10, flat = false) {
     return `<div class="calc ${flat ? 'flat' : 'glass'}" data-calc data-price="${p.price_per_kg}">
-      <label class="l" for="cq">Volume (kg)</label>
-      <div class="calc-row"><input type="range" min="1" max="500" step="1" value="${Math.min(500, Math.max(1, qty))}" aria-label="Geser volume" data-calc-range>
+      <label class="l" for="cq">${esc(T('calc.volume'))}</label>
+      <div class="calc-row"><input type="range" min="1" max="500" step="1" value="${Math.min(500, Math.max(1, qty))}" aria-label="${esc(T('calc.slide'))}" data-calc-range>
       <input class="field" id="cq" type="number" min="1" step="0.01" inputmode="decimal" value="${qty}" data-calc-num></div>
       <div class="err" data-calc-err aria-live="polite"></div>
-      <div>Total estimasi</div><output data-calc-out for="cq">${L.formatUSD(L.estimate(qty, p.price_per_kg))}</output>
-      <p class="note">Estimasi indikatif, bukan penawaran resmi. Harga referensi ${L.formatUSD(p.price_per_kg)}/kg.</p></div>`;
+      <div>${esc(T('calc.total'))}</div><output data-calc-out for="cq">${I.usd(L.estimate(qty, p.price_per_kg))}</output>
+      <p class="note">${esc(T('calc.note', { price: I.usd(p.price_per_kg) }))}</p></div>`;
   }
   function bindCalc(scope, onQty) {
     const c = scope.querySelector('[data-calc]'); if (!c) return null;
     const price = +c.dataset.price, rng = c.querySelector('[data-calc-range]'), num = c.querySelector('[data-calc-num]'), out = c.querySelector('[data-calc-out]'), err = c.querySelector('[data-calc-err]');
     let cur = L.estimate(+num.value || 0, price);
     const show = q => {
-      const e = L.validateRfq({ company_name: 'xx', contact_name: 'xx', email: 'a@b.co', phone: '123456', country: 'xx', quantity_kg: q }).quantity_kg;
+      const e = L.validateRfq({ company_name: 'xx', contact_name: 'xx', email: 'a@b.co', phone: '123456', country: 'xx', quantity_kg: q }, I.rfqMessages()).quantity_kg;
       err.textContent = e || '';
       num.setAttribute('aria-invalid', e ? 'true' : 'false');
       const next = e ? 0 : L.estimate(q, price);
-      window.NVM.tween(out, cur, next, v => L.formatUSD(v));
+      window.NVM.tween(out, cur, next, v => I.usd(v));
       cur = next;
       onQty && onQty(q, !e);
     };

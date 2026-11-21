@@ -1,67 +1,67 @@
 /* Storefront publik: landing, detail produk, modal RFQ, cek status RFQ. */
 (function () {
   const { esc, $, $$, fmtDate, toast, seo, openOverlay } = window.NV;
-  const L = window.NVLib, D = window.NVData, X = window.NVD, M = window.NVM;
+  const L = window.NVLib, D = window.NVData, X = window.NVD, M = window.NVM, I = window.NVI18N;
+  const T = (k, v) => I.t(k, v), TE = (k, v) => esc(I.t(k, v));
   const HERO_URL = (window.HERO_VIDEO_URL || '') || 'videos/hero-vanili.mp4';
   const HERO_POSTER = 'videos/hero-vanili-poster.jpg';
-  const nf = n => Number(n).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+  const nf = n => I.nf(n);
   let cache = null;
+  addEventListener('nv-lang', () => { cache = null; });
+  /* teks galat dari server (kode dikenal) diterjemahkan; pesan server hanya cadangan */
+  const errText = r => (r && I.t('err.' + r.code)) || (r && r.message) || T('rfq.notSent');
   const products = async (force) => (cache && !force ? cache : (cache = await D.products()));
 
-  const header = () => `<a class="skip" href="#main">Lewati ke konten</a>
+  const langPicker = () => `<label class="sr-only" for="lang">${TE('lang.label')}</label><select class="lang" id="lang" data-lang>${I.LANGS.map(l => `<option value="${l.code}" lang="${l.code}" ${l.code === I.lang ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>`;
+  const header = () => `<a class="skip" href="#main">${TE('skip')}</a>
     <header class="hdr glass"><a class="brand" href="#/">Nusa Vanilla</a>
-      <nav class="nav" aria-label="Utama"><a href="#/" data-scroll="katalog">Katalog</a><a href="#/" data-scroll="cerita">Dari petani</a><a href="#/rfq/status">Cek status RFQ</a>
-      <button class="btn sm" data-rfq type="button">Request Quotation (RFQ)</button></nav></header>`;
-  const footer = () => `<footer class="foot"><div class="container"><div><b>Nusa Vanilla</b><p>Vanili Indonesia untuk industri pangan, perisa, dan kosmetik.</p></div>
-    <div><a href="#/" data-scroll="katalog">Katalog</a><br><a href="#/rfq/status">Cek status RFQ</a></div><div>© <span>${new Date().getFullYear()}</span> Nusa Vanilla</div></div></footer>`;
+      <nav class="nav" aria-label="${TE('nav.main')}"><a href="#/" data-scroll="katalog">${TE('nav.catalog')}</a><a href="#/" data-scroll="cerita">${TE('nav.supply')}</a><a href="#/rfq/status">${TE('nav.status')}</a>${langPicker()}
+      <button class="btn sm" data-rfq type="button">${TE('rfq.cta')}</button></nav></header>`;
+  const footer = () => `<footer class="foot"><div class="container"><div><b>Nusa Vanilla</b><p>${TE('footer.tagline')}</p></div>
+    <div><a href="#/" data-scroll="katalog">${TE('nav.catalog')}</a><br><a href="#/rfq/status">${TE('nav.status')}</a></div><div>© <span>${new Date().getFullYear()}</span> Nusa Vanilla</div></div></footer>`;
 
-  const stockNote = p => p.status === 'OUT_OF_STOCK' ? `<span class="chip warn">Stok Menipis / Hubungi Kami</span>` : L.isLowStock(p) ? `<span class="meta"><span class="lowdot" aria-hidden="true"></span>Stok menipis, sisa ${nf(p.stock_kg)} kg</span>` : `<span class="meta">Stok ${nf(p.stock_kg)} kg</span>`;
+  const stockNote = p => p.status === 'OUT_OF_STOCK' ? `<span class="chip warn">${TE('stock.out')}</span>` : L.isLowStock(p) ? `<span class="meta"><span class="lowdot" aria-hidden="true"></span>${TE('stock.low', { n: nf(p.stock_kg) })}</span>` : `<span class="meta">${TE('stock.ok', { n: nf(p.stock_kg) })}</span>`;
 
   function card(p) {
     return `<article class="card glass">
       <a class="card-photo" href="#/produk/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><div class="tilt-art">${X.image(p)}</div></a>
       <div class="card-body"><span class="chip">${esc(p.grade)}</span>
         <h3><a href="#/produk/${esc(p.slug)}">${esc(p.name)}</a></h3>
-        <p class="meta">${esc(p.origin || 'Indonesia')}${p.length_cm ? ' · ' + nf(p.length_cm) + ' cm' : ''} · air ${nf(p.moisture_percentage)}% · vanilin ${nf(p.vanillin_percentage)}%</p>
-        <div class="card-foot"><div class="price">${L.formatUSD(p.price_per_kg)}<small> /kg</small></div>${stockNote(p)}</div></div></article>`;
+        <p class="meta">${esc(p.origin || 'Indonesia')}${p.length_cm ? ' · ' + nf(p.length_cm) + ' cm' : ''} · ${TE('card.moisture', { v: nf(p.moisture_percentage) })} · ${TE('card.vanillin', { v: nf(p.vanillin_percentage) })}</p>
+        <div class="card-foot"><div class="price">${I.usd(p.price_per_kg)}<small> /kg</small></div>${stockNote(p)}</div></div></article>`;
   }
 
   /* ───────── landing ───────── */
-  const STAGES = [
-    ['Panen oleh petani mitra', 'Bunga vanili hanya mekar sehari, jadi penyerbukan dilakukan manual satu per satu oleh petani. Polong dipanen saat matang di pohon.'],
-    ['Curing dan pengeringan', 'Polong hijau dilayukan, diperam, lalu dijemur bertahap selama beberapa minggu sampai cokelat tua, lentur, dan harum.'],
-    ['Grading dan seleksi mutu', 'Polong dipilah menurut panjang, kelembapan, dan aroma. Dokumen mutu dan hasil uji tersedia atas permintaan untuk setiap lot.'],
-    ['Pengemasan dan ekspor', 'Polong dikemas rapat, lalu dokumen ekspor disiapkan sesuai persyaratan negara tujuan.']
-  ];
+  const stages = () => [1, 2, 3, 4].map(n => [T('stage.' + n + '.t'), T('stage.' + n + '.d')]);
   function landingHTML() {
     return `${header()}<main id="main">
     <section class="hero" aria-labelledby="h1"><div class="hero-media" aria-hidden="true">
         <img class="poster" src="${HERO_POSTER}" alt="" width="1280" height="720" fetchpriority="high" decoding="async"><div class="hero-shade"></div></div>
       <div class="container hero-inner"><div class="hero-panel glass glass-dark">
-        <h1 id="h1">Vanili Indonesia dengan mutu yang bisa Anda periksa</h1>
-        <p class="lede">Planifolia dan Tahitensis, lengkap dengan spesifikasi mutu tiap produk. Minta penawaran lewat formulir RFQ.</p>
-        <p class="tagline" data-typewriter>Planifolia &amp; Tahitensis, dari petani mitra ke pelabuhan ekspor.</p>
-        <div class="hero-cta"><button class="btn" data-rfq type="button">Request Quotation (RFQ)</button><a class="btn ghost" href="#/" data-scroll="katalog">Lihat katalog</a></div></div></div>
-      <span class="scroll-hint" aria-hidden="true">Gulir</span></section>
+        <h1 id="h1">${TE('hero.title')}</h1>
+        <p class="lede">${TE('hero.lede')}</p>
+        <p class="tagline" data-typewriter>${TE('hero.tagline')}</p>
+        <div class="hero-cta"><button class="btn" data-rfq type="button">${TE('rfq.cta')}</button><a class="btn ghost" href="#/" data-scroll="katalog">${TE('hero.catalog')}</a></div></div></div>
+      <span class="scroll-hint" aria-hidden="true">${TE('hero.scroll')}</span></section>
     <div class="strip container" id="strip" style="min-height:112px"></div>
     <div class="section blobs paper" id="katalog" aria-labelledby="kat-h"><div class="container">
-      <div class="section-head"><h2 class="tr" id="kat-h">Katalog vanili ekspor</h2><p>Harga referensi dalam USD per kilogram. Harga final dikonfirmasi lewat penawaran resmi.</p></div>
-      <form class="search" role="search" onsubmit="return false"><label class="sr-only" for="q">Cari produk</label><input id="q" type="search" placeholder="Cari nama atau grade" autocomplete="off"></form>
+      <div class="section-head"><h2 class="tr" id="kat-h">${TE('catalog.title')}</h2><p>${TE('catalog.sub')}</p></div>
+      <form class="search" role="search" onsubmit="return false"><label class="sr-only" for="q">${TE('catalog.search')}</label><input id="q" type="search" placeholder="${TE('catalog.placeholder')}" autocomplete="off"></form>
       <div class="grid" id="grid" aria-live="polite">${'<div class="skeleton" aria-hidden="true"></div>'.repeat(3)}</div></div></div>
     ${X.vine()}
-    <section class="blobs paper" id="cerita" aria-labelledby="cer-h"><div class="container" style="padding-top:var(--s8)"><div class="section-head" style="margin-bottom:var(--s5)"><h2 class="tr" id="cer-h">Dari petani mitra ke kontainer</h2><p>Empat tahap yang menentukan mutu polong sebelum sampai di pelabuhan Anda.</p></div></div>
+    <section class="blobs paper" id="cerita" aria-labelledby="cer-h"><div class="container" style="padding-top:var(--s8)"><div class="section-head" style="margin-bottom:var(--s5)"><h2 class="tr" id="cer-h">${TE('story.title')}</h2><p>${TE('story.sub')}</p></div></div>
       <div class="story"><div class="story-pin"><div class="container story-grid">
         <div class="story-art" aria-hidden="true">${X.STORY_ART.map((s, i) => s.replace('<svg', `<svg class="${i === 0 ? 'on' : ''}"`)).join('')}</div>
-        <div class="story-side"><div class="story-line" aria-hidden="true"><i></i></div><div class="story-panels">${STAGES.map(([t, d], i) => `<div class="stage glass ${i === 0 ? 'on' : ''}"><div class="mini" aria-hidden="true">${X.STORY_ART[i]}</div><span class="num">Tahap ${i + 1} dari 4</span><h3>${t}</h3><p>${d}</p></div>`).join('')}</div></div>
+        <div class="story-side"><div class="story-line" aria-hidden="true"><i></i></div><div class="story-panels">${stages().map(([t, d], i) => `<div class="stage glass ${i === 0 ? 'on' : ''}"><div class="mini" aria-hidden="true">${X.STORY_ART[i]}</div><span class="num">${TE('story.stage', { n: i + 1 })}</span><h3>${esc(t)}</h3><p>${esc(d)}</p></div>`).join('')}</div></div>
       </div></div></div></section>
     ${X.vine()}
-    <section class="section blobs" aria-labelledby="eks-h"><div class="container"><div class="section-head"><h2 class="tr" id="eks-h">Dokumen mutu dan sertifikasi</h2><p>Dokumen ekspor dan sertifikasi mengikuti persyaratan negara tujuan.</p></div>
-      <div class="export-grid" style="grid-template-columns:1fr"><div data-reveal><h3 style="margin-bottom:var(--s4);font-size:1.4rem">Sertifikasi dan COA</h3>${X.certBadges()}</div></div></div></section>
-    <section class="cta" aria-labelledby="cta-h"><div class="container"><h2 class="tr" id="cta-h">Butuh penawaran untuk volume Anda?</h2><p>Sebutkan jenis vanili, volume, dan negara tujuan. Kami kirim penawaran resmi lewat email.</p><button class="btn" data-rfq type="button">Request Quotation (RFQ)</button></div></section></main>${footer()}`;
+    <section class="section blobs" aria-labelledby="eks-h"><div class="container"><div class="section-head"><h2 class="tr" id="eks-h">${TE('docs.title')}</h2><p>${TE('docs.sub')}</p></div>
+      <div class="export-grid" style="grid-template-columns:1fr"><div data-reveal><h3 style="margin-bottom:var(--s4);font-size:1.4rem">${TE('docs.certs')}</h3>${X.certBadges()}</div></div></div></section>
+    <section class="cta" aria-labelledby="cta-h"><div class="container"><h2 class="tr" id="cta-h">${TE('cta.title')}</h2><p>${TE('cta.sub')}</p><button class="btn" data-rfq type="button">${TE('rfq.cta')}</button></div></section></main>${footer()}`;
   }
 
   async function landing(app) {
-    seo('Nusa Vanilla | Vanili Planifolia & Tahitensis untuk ekspor', 'Katalog vanili Indonesia untuk pembeli B2B: spesifikasi mutu, harga referensi per kg, dan permintaan penawaran (RFQ) langsung.');
+    seo(T('seo.title'), T('seo.desc'));
     app.innerHTML = landingHTML();
     M.scan(app, { heroUrl: HERO_URL });
     const grid = $('#grid', app);
@@ -69,13 +69,13 @@
       const list = await products(true);
       const maxLen = Math.max(0, ...list.map(p => p.length_cm)), maxVan = Math.max(0, ...list.map(p => p.vanillin_percentage));
       $('#strip', app).innerHTML = `<div class="strip-grid glass" role="list">${[
-        [maxLen, 0, '', 'cm panjang polong maksimum'], [maxVan, 1, '%', 'kadar vanilin tertinggi'], [list.length, 0, '', 'varian di katalog']
-      ].map(([v, d, s, t]) => `<div class="stat" role="listitem"><b data-count="${v}" data-decimals="${d}" data-suffix="${s}" aria-label="${v.toFixed(d)}${s} ${t}">${v.toFixed(d)}${s}</b><span>${t}</span></div>`).join('')}</div>`;
+        [maxLen, 0, '', T('strip.length')], [maxVan, 1, '%', T('strip.vanillin')], [list.length, 0, '', T('strip.variants')]
+      ].map(([v, d, s, t]) => `<div class="stat" role="listitem"><b data-count="${v}" data-decimals="${d}" data-suffix="${s}" aria-label="${v.toFixed(d)}${s} ${t}">${v.toFixed(d)}${s}</b><span>${esc(t)}</span></div>`).join('')}</div>`;
       M.scan($('#strip', app), { keep: true });
       const render = (animate) => {
         const q = $('#q', app).value.trim().toLowerCase();
         const l = q ? list.filter(p => (p.name + ' ' + p.grade).toLowerCase().includes(q)) : list;
-        grid.innerHTML = l.length ? l.map(card).join('') : `<div class="empty glass"><p>Tidak ada produk untuk "${esc(q)}".</p><button class="btn sm" type="button" data-clear>Tampilkan semua produk</button></div>`;
+        grid.innerHTML = l.length ? l.map(card).join('') : `<div class="empty glass"><p>${TE('catalog.empty', { q })}</p><button class="btn sm" type="button" data-clear>${TE('catalog.clear')}</button></div>`;
         if (animate) grid.setAttribute('data-stagger', ''); else grid.removeAttribute('data-stagger');
         M.scan(grid, { keep: true });
       };
@@ -84,7 +84,7 @@
       grid.addEventListener('click', e => { if (e.target.closest('[data-clear]')) { $('#q', app).value = ''; render(false); } });
     } catch (err) {
       console.warn('Katalog gagal dimuat:', err);
-      grid.innerHTML = `<div class="empty glass"><p>Katalog sedang tidak bisa ditampilkan. Hubungi kami untuk katalog terbaru.</p><button class="btn sm" type="button" data-retry>Coba lagi</button></div>`;
+      grid.innerHTML = `<div class="empty glass"><p>${TE('catalog.error')}</p><button class="btn sm" type="button" data-retry>${TE('retry')}</button></div>`;
       grid.addEventListener('click', e => { if (e.target.closest('[data-retry]')) landing(app); });
     }
   }
@@ -93,28 +93,28 @@
   async function productPage(app, slug) {
     app.innerHTML = `${header()}<main id="main" class="pd blobs"><div class="container"><div class="skeleton" style="min-height:480px"></div></div></main>`;
     let p;
-    try { p = await D.product(slug); } catch (e) { p = undefined; app.querySelector('.container').innerHTML = `<div class="empty glass"><p>Produk sedang tidak bisa ditampilkan. Hubungi kami untuk informasi produk.</p><a class="btn sm" href="#/produk/${esc(slug)}">Coba lagi</a></div>`; M.scan(app); return; }
-    if (!p) return notFound(app, 'Produk tidak ditemukan atau sudah tidak tersedia.');
-    seo(`${p.name} | Nusa Vanilla`, `${p.name}, ${p.grade}. Kadar air ${nf(p.moisture_percentage)}%, vanilin ${nf(p.vanillin_percentage)}%. Harga referensi ${L.formatUSD(p.price_per_kg)}/kg.`);
-    const rows = [p.length_cm ? ['Panjang polong', p.length_cm, 25, 1, ' cm'] : null, ['Kadar air', p.moisture_percentage, 40, 1, '%'], ['Kadar vanilin', p.vanillin_percentage, 3, 1, '%']].filter(Boolean);
+    try { p = await D.product(slug); } catch (e) { p = undefined; app.querySelector('.container').innerHTML = `<div class="empty glass"><p>${TE('pd.error')}</p><a class="btn sm" href="#/produk/${esc(slug)}">${TE('retry')}</a></div>`; M.scan(app); return; }
+    if (!p) return notFound(app, T('pd.notfound'));
+    seo(`${p.name} | Nusa Vanilla`, T('pd.seo', { name: p.name, grade: p.grade, moisture: nf(p.moisture_percentage), vanillin: nf(p.vanillin_percentage), price: I.usd(p.price_per_kg) }));
+    const rows = [p.length_cm ? [T('pd.length'), p.length_cm, 25, 1, ' cm'] : null, [T('pd.moisture'), p.moisture_percentage, 40, 1, '%'], [T('pd.vanillin'), p.vanillin_percentage, 3, 1, '%']].filter(Boolean);
     app.innerHTML = `${header()}<main id="main" class="pd blobs"><div class="container">
-      <p class="crumb"><a href="#/" data-scroll="katalog">← Katalog</a></p>
+      <p class="crumb"><a href="#/" data-scroll="katalog">${TE('pd.back')}</a></p>
       <div class="pd-grid"><div>
         <div class="macro" id="macro"><div class="art" id="macro-art">${X.image(p, 1)}</div>
-          ${p.length_cm ? `<button class="hot" style="left:30%;top:68%" data-tip="Panjang ${nf(p.length_cm)} cm" aria-label="Panjang ${nf(p.length_cm)} cm" type="button"></button>` : ''}
-          <button class="hot" style="left:54%;top:44%" data-tip="Kadar air ${nf(p.moisture_percentage)}%" aria-label="Kadar air ${nf(p.moisture_percentage)}%" type="button"></button>
-          <button class="hot" style="left:76%;top:22%" data-tip="Vanilin ${nf(p.vanillin_percentage)}%" aria-label="Vanilin ${nf(p.vanillin_percentage)}%" type="button"></button></div>
-        <ul class="hot-list">${p.length_cm ? `<li>Panjang ${nf(p.length_cm)} cm</li>` : ''}<li>Kadar air ${nf(p.moisture_percentage)}%</li><li>Vanilin ${nf(p.vanillin_percentage)}%</li></ul>
-        <div class="gallery" role="group" aria-label="Pilih tampilan">${[0, 1, 2].map(v => `<button type="button" data-view="${v}" aria-pressed="${v === 1}" aria-label="Tampilan ${v + 1}">${X.image(p, v)}</button>`).join('')}</div>
-        <p class="note">Ilustrasi pengganti foto produk. Foto asli akan ditambahkan pemilik.</p></div>
+          ${p.length_cm ? `<button class="hot" style="left:30%;top:68%" data-tip="${TE('pd.hotLength', { v: nf(p.length_cm) })}" aria-label="${TE('pd.hotLength', { v: nf(p.length_cm) })}" type="button"></button>` : ''}
+          <button class="hot" style="left:54%;top:44%" data-tip="${TE('pd.hotMoisture', { v: nf(p.moisture_percentage) })}" aria-label="${TE('pd.hotMoisture', { v: nf(p.moisture_percentage) })}" type="button"></button>
+          <button class="hot" style="left:76%;top:22%" data-tip="${TE('pd.hotVanillin', { v: nf(p.vanillin_percentage) })}" aria-label="${TE('pd.hotVanillin', { v: nf(p.vanillin_percentage) })}" type="button"></button></div>
+        <ul class="hot-list">${p.length_cm ? `<li>${TE('pd.hotLength', { v: nf(p.length_cm) })}</li>` : ''}<li>${TE('pd.hotMoisture', { v: nf(p.moisture_percentage) })}</li><li>${TE('pd.hotVanillin', { v: nf(p.vanillin_percentage) })}</li></ul>
+        <div class="gallery" role="group" aria-label="${TE('pd.view')}">${[0, 1, 2].map(v => `<button type="button" data-view="${v}" aria-pressed="${v === 1}" aria-label="${TE('pd.viewN', { n: v + 1 })}">${X.image(p, v)}</button>`).join('')}</div>
+        <p class="note">${TE('pd.illustration')}</p></div>
       <div class="pd-info" data-reveal><span class="chip">${esc(p.grade)}</span><h1>${esc(p.name)}</h1>
         <p class="meta">${esc(p.origin || 'Indonesia')}</p><p style="margin-top:var(--s3);max-width:56ch">${esc(p.description || '')}</p>
         <div class="specs glass">${rows.map(([t, v, max, d, s]) => `<div class="spec-row"><span>${t}</span><div class="spec-bar" style="--r:${Math.min(1, v / max).toFixed(3)}" role="img" aria-label="${t} ${nf(v)}${s}"><i></i></div><b data-count="${v}" data-decimals="${v % 1 ? d : 0}" data-suffix="${s}" aria-label="${nf(v)}${s}">${nf(v)}${s}</b></div>`).join('')}</div>
-        <p class="price" style="margin-bottom:var(--s3)">${L.formatUSD(p.price_per_kg)}<small> /kg, harga referensi indikatif</small></p>
-        <p class="meta" style="margin-bottom:var(--s3)">Diperbarui: ${new Date(p.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        <p class="price" style="margin-bottom:var(--s3)">${I.usd(p.price_per_kg)}<small> ${TE('pd.price')}</small></p>
+        <p class="meta" style="margin-bottom:var(--s3)">${TE('pd.updated', { date: I.date(p.updated_at) })}</p>
         <div style="margin-bottom:var(--s4)">${stockNote(p)}</div>
         ${X.calculator(p, Math.max(1, Math.min(500, 10)))}
-        <div class="hero-cta" style="margin-top:var(--s5)"><button class="btn" id="rfq-this" type="button">Request Quotation (RFQ)</button>${p.status === 'OUT_OF_STOCK' ? '<span class="chip warn">Stok Menipis / Hubungi Kami</span>' : ''}</div>
+        <div class="hero-cta" style="margin-top:var(--s5)"><button class="btn" id="rfq-this" type="button">${TE('rfq.cta')}</button>${p.status === 'OUT_OF_STOCK' ? `<span class="chip warn">${TE('stock.out')}</span>` : ''}</div>
       </div></div></div></main>${footer()}`;
     M.scan(app);
     let qty = 10;
@@ -128,30 +128,30 @@
   }
 
   /* ───────── modal RFQ ───────── */
-  const field = (id, label, extra = '', tag = 'input') => `<div><label class="l" for="f-${id}">${label}</label>${tag === 'textarea' ? `<textarea class="field" id="f-${id}" name="${id}" rows="3" maxlength="1000" aria-describedby="e-${id}"></textarea>` : `<input class="field" id="f-${id}" name="${id}" ${extra} aria-describedby="e-${id}">`}<div class="err" id="e-${id}" aria-live="polite"></div></div>`;
+  const field = (id, label, extra = '', tag = 'input') => `<div><label class="l" for="f-${id}">${esc(label)}</label>${tag === 'textarea' ? `<textarea class="field" id="f-${id}" name="${id}" rows="3" maxlength="1000" aria-describedby="e-${id}"></textarea>` : `<input class="field" id="f-${id}" name="${id}" ${extra} aria-describedby="e-${id}">`}<div class="err" id="e-${id}" aria-live="polite"></div></div>`;
   async function openRfq({ product, qty = 10 } = {}) {
     let list = [];
-    try { list = await products(); } catch (_) { toast('Katalog sedang tidak bisa ditampilkan. Coba lagi.', true); return; }
+    try { list = await products(); } catch (_) { toast(T('catalog.toast'), true); return; }
     if (product && !list.some(x => x.id === product.id)) list = [product, ...list];
-    let cur = product || list[0]; if (!cur) { toast('Belum ada produk yang tersedia.', true); return; }
+    let cur = product || list[0]; if (!cur) { toast(T('catalog.none'), true); return; }
     const key = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
     const ov = document.createElement('div'); ov.className = 'overlay';
-    ov.innerHTML = `<div class="modal glass" role="dialog" aria-modal="true" aria-labelledby="rfq-h" style="position:relative"><button class="btn sm ghost x" type="button" aria-label="Tutup" data-x>✕</button><div data-body></div></div>`;
+    ov.innerHTML = `<div class="modal glass" role="dialog" aria-modal="true" aria-labelledby="rfq-h" style="position:relative"><button class="btn sm ghost x" type="button" aria-label="${TE('rfq.close')}" data-x>✕</button><div data-body></div></div>`;
     const close = openOverlay(ov);
     const body = $('[data-body]', ov);
     let q = qty, calc;
     const mountCalc = () => { $('#calcbox', ov).innerHTML = X.calculator(cur, q, true); calc = X.bindCalc(ov, (v, ok) => { q = v; }); };
-    body.innerHTML = `<h2 id="rfq-h">Request Quotation (RFQ)</h2><p class="meta">Isi data singkat. Nomor referensi tampil langsung setelah terkirim.</p>
+    body.innerHTML = `<h2 id="rfq-h">${TE('rfq.title')}</h2><p class="meta">${TE('rfq.intro')}</p>
       <form class="form" novalidate><div class="err" id="e-form" role="alert"></div>
-      <div><label class="l" for="f-product">Produk</label><select class="field" id="f-product" name="product_id">${list.map(x => `<option value="${x.id}" ${x.id === cur.id ? 'selected' : ''}>${esc(x.name)} (${esc(x.grade)})</option>`).join('')}</select></div>
+      <div><label class="l" for="f-product">${TE('rfq.product')}</label><select class="field" id="f-product" name="product_id">${list.map(x => `<option value="${x.id}" ${x.id === cur.id ? 'selected' : ''}>${esc(x.name)} (${esc(x.grade)})</option>`).join('')}</select></div>
       <div id="calcbox"></div>
-      <div class="two">${field('company_name', 'Nama perusahaan', 'autocomplete="organization"')}${field('contact_name', 'Nama kontak', 'autocomplete="name"')}</div>
-      <div class="two">${field('email', 'Email', 'type="email" autocomplete="email"')}${field('phone', 'Nomor kontak', 'type="tel" autocomplete="tel" placeholder="+49 40 123456"')}</div>
-      ${field('country', 'Negara tujuan', 'autocomplete="country-name"')}
-      ${field('notes', 'Catatan (opsional)', '', 'textarea')}
-      <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
-      <p class="meta" style="font-size:.85rem">Data Anda hanya dipakai untuk menanggapi permintaan penawaran ini.</p>
-      <button class="btn" type="submit" id="send">Kirim permintaan</button></form>`;
+      <div class="two">${field('company_name', T('rfq.company'), 'autocomplete="organization"')}${field('contact_name', T('rfq.contact'), 'autocomplete="name"')}</div>
+      <div class="two">${field('email', T('rfq.email'), 'type="email" autocomplete="email"')}${field('phone', T('rfq.phone'), 'type="tel" autocomplete="tel" placeholder="+49 40 123456"')}</div>
+      ${field('country', T('rfq.country'), 'autocomplete="country-name"')}
+      ${field('notes', T('rfq.notes'), '', 'textarea')}
+      <div class="hp" aria-hidden="true"><label>${TE('rfq.website')} <input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <p class="meta" style="font-size:.85rem">${TE('rfq.privacy')}</p>
+      <button class="btn" type="submit" id="send">${TE('rfq.send')}</button></form>`;
     mountCalc();
     $('#f-product', ov).addEventListener('change', e => { cur = list.find(x => x.id === e.target.value); mountCalc(); });
     ov.addEventListener('click', e => { if (e.target.closest('[data-x]')) close(); });
@@ -162,22 +162,24 @@
       if (btn.disabled) return;
       const fd = Object.fromEntries(new FormData(form));
       const payload = { product_id: cur.id, company_name: fd.company_name, contact_name: fd.contact_name, email: fd.email, phone: fd.phone, country: fd.country, quantity_kg: $('[data-calc-num]', form).value === '' ? '' : Number($('[data-calc-num]', form).value), notes: fd.notes, website: fd.website };
-      const errs = L.validateRfq(payload);
+      const errs = L.validateRfq(payload, I.rfqMessages());
       if (Object.keys(errs).length) return showErr(errs);
-      btn.disabled = true; btn.textContent = 'Mengirim…'; $('#e-form', form).textContent = '';
+      btn.disabled = true; btn.textContent = T('rfq.sending'); $('#e-form', form).textContent = '';
       let res;
       try { res = await D.createInquiry(payload, key); }
-      catch (err) { btn.disabled = false; btn.textContent = 'Kirim permintaan'; $('#e-form', form).textContent = 'Koneksi bermasalah, permintaan belum terkirim. Periksa koneksi lalu kirim lagi.'; return; }
+      catch (err) { btn.disabled = false; btn.textContent = T('rfq.send'); $('#e-form', form).textContent = T('rfq.network'); return; }
       if (res && res.ok) return success(res.data);
-      btn.disabled = false; btn.textContent = 'Kirim permintaan';
-      if (res && res.code === 'VALIDATION_ERROR') showErr(res.errors || {});
-      else { $('#e-form', form).textContent = (res && res.message) || 'Permintaan belum terkirim.'; if (res && res.code === 'PRODUCT_UNAVAILABLE') cache = null; }
+      btn.disabled = false; btn.textContent = T('rfq.send');
+      if (res && res.code === 'VALIDATION_ERROR') {
+        const ce = L.validateRfq(payload, I.rfqMessages());
+        if (Object.keys(ce).length) showErr(ce); else $('#e-form', form).textContent = errText(res);
+      } else { $('#e-form', form).textContent = errText(res); if (res && res.code === 'PRODUCT_UNAVAILABLE') cache = null; }
     });
     function success(d) {
       body.innerHTML = `<div class="success"><svg viewBox="0 0 52 52" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="26" cy="26" r="22" opacity=".25"/><path pathLength="1" d="M15 27l8 8 15-17"/></svg>
-        <h2 id="rfq-h">Permintaan terkirim</h2><p class="meta">Nomor referensi RFQ Anda</p><span class="refno">${esc(d.inquiry_number)}</span>
-        <p>Estimasi indikatif ${L.formatUSD(d.total_estimate)}. Bukan penawaran resmi; kami kirim penawaran lewat email.</p>
-        <div class="hero-cta" style="justify-content:center"><a class="btn" href="#/rfq/status?no=${encodeURIComponent(d.inquiry_number)}" data-x>Cek status</a><button class="btn ghost" type="button" data-x>Tutup</button></div></div>`;
+        <h2 id="rfq-h">${TE('rfq.sentTitle')}</h2><p class="meta">${TE('rfq.refLabel')}</p><span class="refno">${esc(d.inquiry_number)}</span>
+        <p>${TE('rfq.sentNote', { total: I.usd(d.total_estimate) })}</p>
+        <div class="hero-cta" style="justify-content:center"><a class="btn" href="#/rfq/status?no=${encodeURIComponent(d.inquiry_number)}" data-x>${TE('rfq.checkStatus')}</a><button class="btn ghost" type="button" data-x>${TE('rfq.close')}</button></div></div>`;
       const f = $('.refno', body); f && f.focus && f.setAttribute('tabindex', '-1');
     }
   }
@@ -185,41 +187,44 @@
   /* ───────── cek status RFQ ───────── */
   const STEPS = ['PENDING', 'QUOTED', 'CONFIRMED'];
   function statusPage(app) {
-    seo('Cek status RFQ | Nusa Vanilla', 'Masukkan nomor RFQ dan email untuk melihat status permintaan penawaran Anda.');
+    seo(T('status.title') + ' | Nusa Vanilla', T('status.seo'));
     const pre = decodeURIComponent((location.hash.split('?no=')[1] || '').split('&')[0]);
-    app.innerHTML = `${header()}<main id="main" class="blobs"><div class="status-wrap container"><h1 style="font-size:clamp(2rem,4vw,2.8rem)">Cek status RFQ</h1>
-      <p class="meta" style="margin:var(--s3) 0 var(--s5)">Gunakan nomor RFQ dan email yang sama dengan saat mengirim permintaan.</p>
+    app.innerHTML = `${header()}<main id="main" class="blobs"><div class="status-wrap container"><h1 style="font-size:clamp(2rem,4vw,2.8rem)">${TE('status.title')}</h1>
+      <p class="meta" style="margin:var(--s3) 0 var(--s5)">${TE('status.intro')}</p>
       <form class="glass form" style="padding:var(--s5)" novalidate><div class="err" id="e-form" role="alert"></div>
-        <div><label class="l" for="s-no">Nomor RFQ</label><input class="field" id="s-no" value="${esc(pre)}" placeholder="RFQ-2026-AB12CD" autocomplete="off" required></div>
-        <div><label class="l" for="s-em">Email</label><input class="field" id="s-em" type="email" autocomplete="email" required></div>
-        <button class="btn" type="submit">Cek status</button></form><div id="res" aria-live="polite"></div></div></main>${footer()}`;
+        <div><label class="l" for="s-no">${TE('status.number')}</label><input class="field" id="s-no" value="${esc(pre)}" placeholder="RFQ-2026-AB12CD" autocomplete="off" required></div>
+        <div><label class="l" for="s-em">${TE('status.email')}</label><input class="field" id="s-em" type="email" autocomplete="email" required></div>
+        <button class="btn" type="submit">${TE('rfq.checkStatus')}</button></form><div id="res" aria-live="polite"></div></div></main>${footer()}`;
     M.scan(app);
     const f = $('form', app), res = $('#res', app);
     f.addEventListener('submit', async e => {
       e.preventDefault();
       const no = $('#s-no', app).value, em = $('#s-em', app).value, er = $('#e-form', app), b = $('button[type=submit]', app);
       er.textContent = ''; res.innerHTML = '';
-      if (!no.trim() || L.validateRfq({ company_name: 'xx', contact_name: 'xx', email: em, phone: '123456', country: 'xx', quantity_kg: 1 }).email) { er.textContent = 'Isi nomor RFQ dan email yang valid.'; return; }
-      b.disabled = true; b.textContent = 'Memeriksa…';
+      if (!no.trim() || L.validateRfq({ company_name: 'xx', contact_name: 'xx', email: em, phone: '123456', country: 'xx', quantity_kg: 1 }).email) { er.textContent = T('status.invalid'); return; }
+      b.disabled = true; b.textContent = T('status.checking');
       try {
         const r = await D.lookup(no, em);
-        if (!r.ok) { er.textContent = r.message; }
+        if (!r.ok) { er.textContent = errText(r); }
         else {
           const d = r.data, cancelled = d.status === 'CANCELLED', i = Math.max(0, STEPS.indexOf(d.status));
           res.innerHTML = `<div class="glass" style="padding:var(--s5);margin-top:var(--s5)"><b style="font-size:1.2rem">${esc(d.inquiry_number)}</b><p class="meta">${esc(d.product_name)} · ${nf(d.quantity_kg)} kg</p>
-            <div class="tl ${cancelled ? 'cancelled' : ''}" style="--p:${cancelled ? 0 : i / 2}" role="img" aria-label="Status: ${L.STATUS_LABEL[d.status]}"><i></i>${STEPS.map((s, k) => `<div class="tl-step ${!cancelled && k < i ? 'done' : ''} ${!cancelled && k === i ? 'done cur' : ''}">${L.STATUS_LABEL[s]}</div>`).join('')}</div>
-            ${cancelled ? '<p class="chip warn">Dibatalkan</p>' : ''}<p class="note">Dikirim ${fmtDate(d.created_at)} · pembaruan terakhir ${fmtDate(d.updated_at)}</p></div>`;
+            <div class="tl ${cancelled ? 'cancelled' : ''}" style="--p:${cancelled ? 0 : i / 2}" role="img" aria-label="${TE('status.label', { s: T('status.' + d.status) })}"><i></i>${STEPS.map((s, k) => `<div class="tl-step ${!cancelled && k < i ? 'done' : ''} ${!cancelled && k === i ? 'done cur' : ''}">${TE('status.' + s)}</div>`).join('')}</div>
+            ${cancelled ? `<p class="chip warn">${TE('status.CANCELLED')}</p>` : ''}<p class="note">${TE('status.sent', { created: fmtDate(d.created_at), updated: fmtDate(d.updated_at) })}</p></div>`;
         }
-      } catch (err) { er.textContent = 'Koneksi bermasalah. Coba lagi.'; }
-      b.disabled = false; b.textContent = 'Cek status';
+      } catch (err) { er.textContent = T('status.network'); }
+      b.disabled = false; b.textContent = T('rfq.checkStatus');
     });
   }
 
   function notFound(app, msg) {
-    seo('Halaman tidak ditemukan | Nusa Vanilla', 'Halaman yang Anda cari tidak ada.');
-    app.innerHTML = `<main id="main" class="nf blobs"><div><h1>404</h1><p style="margin:var(--s3) 0 var(--s5)">${esc(msg || 'Halaman yang Anda cari tidak ada.')}</p><a class="btn" href="#/">Kembali ke katalog</a></div></main>`;
+    seo(T('nf.title') + ' | Nusa Vanilla', T('nf.seo'));
+    app.innerHTML = `<main id="main" class="nf blobs"><div><h1>404</h1><p style="margin:var(--s3) 0 var(--s5)">${esc(msg || T('nf.msg'))}</p><a class="btn" href="#/">${TE('nf.back')}</a></div></main>`;
     M.scan(app);
   }
+
+  /* pemilih bahasa di header */
+  document.addEventListener('change', e => { const s = e.target.closest('[data-lang]'); if (s) I.setLang(s.value); });
 
   /* klik delegasi: tombol RFQ dan tautan gulir */
   document.addEventListener('click', e => {
