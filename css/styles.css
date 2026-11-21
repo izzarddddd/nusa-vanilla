@@ -116,7 +116,7 @@ p { margin: 0; }
 
 /* strip angka mutu */
 .strip { position: relative; margin-top: calc(-1 * var(--s8)); z-index: 2; }
-.strip-grid { display: grid; grid-template-columns: repeat(4, 1fr); padding: var(--s5) var(--s3); }
+.strip-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: var(--s5) var(--s3); }
 .stat { padding: var(--s2) var(--s5); border-left: 1px solid rgba(42, 27, 16, 0.14); }
 .stat:first-child { border-left: 0; }
 .stat b { display: block; font: 400 clamp(1.8rem, 3.6vw, 2.6rem)/1.1 var(--font-display); color: var(--vine-deep); font-variant-numeric: tabular-nums; }

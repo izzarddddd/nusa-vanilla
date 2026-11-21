@@ -55,8 +55,8 @@
         <div class="story-side"><div class="story-line" aria-hidden="true"><i></i></div><div class="story-panels">${STAGES.map(([t, d], i) => `<div class="stage glass ${i === 0 ? 'on' : ''}"><div class="mini" aria-hidden="true">${X.STORY_ART[i]}</div><span class="num">Tahap ${i + 1} dari 4</span><h3>${t}</h3><p>${d}</p></div>`).join('')}</div></div>
       </div></div></div></section>
     ${X.vine()}
-    <section class="section blobs" aria-labelledby="eks-h"><div class="container"><div class="section-head"><h2 class="tr" id="eks-h">Rute ekspor dan sertifikasi</h2><p>Dari Jawa ke pelabuhan tujuan pembeli. Dokumen ekspor dan sertifikasi mengikuti persyaratan negara tujuan.</p></div>
-      <div class="export-grid">${X.exportMap()}<div data-reveal><h3 style="margin-bottom:var(--s4);font-size:1.4rem">Sertifikasi dan COA</h3>${X.certBadges()}</div></div></div></section>
+    <section class="section blobs" aria-labelledby="eks-h"><div class="container"><div class="section-head"><h2 class="tr" id="eks-h">Dokumen mutu dan sertifikasi</h2><p>Dokumen ekspor dan sertifikasi mengikuti persyaratan negara tujuan.</p></div>
+      <div class="export-grid" style="grid-template-columns:1fr"><div data-reveal><h3 style="margin-bottom:var(--s4);font-size:1.4rem">Sertifikasi dan COA</h3>${X.certBadges()}</div></div></div></section>
     <section class="cta" aria-labelledby="cta-h"><div class="container"><h2 class="tr" id="cta-h">Butuh penawaran untuk volume Anda?</h2><p>Sebutkan jenis vanili, volume, dan negara tujuan. Kami kirim penawaran resmi lewat email.</p><button class="btn" data-rfq type="button">Request Quotation (RFQ)</button></div></section></main>${footer()}`;
   }
 
@@ -69,7 +69,7 @@
       const list = await products(true);
       const maxLen = Math.max(0, ...list.map(p => p.length_cm)), maxVan = Math.max(0, ...list.map(p => p.vanillin_percentage));
       $('#strip', app).innerHTML = `<div class="strip-grid glass" role="list">${[
-        [maxLen, 0, '', 'cm panjang polong maksimum'], [maxVan, 1, '%', 'kadar vanilin tertinggi'], [list.length, 0, '', 'varian di katalog'], [X.DESTINATIONS.length, 0, '', 'negara tujuan (contoh)']
+        [maxLen, 0, '', 'cm panjang polong maksimum'], [maxVan, 1, '%', 'kadar vanilin tertinggi'], [list.length, 0, '', 'varian di katalog']
       ].map(([v, d, s, t]) => `<div class="stat" role="listitem"><b data-count="${v}" data-decimals="${d}" data-suffix="${s}" aria-label="${v.toFixed(d)}${s} ${t}">${v.toFixed(d)}${s}</b><span>${t}</span></div>`).join('')}</div>`;
       M.scan($('#strip', app), { keep: true });
       const render = (animate) => {
@@ -110,7 +110,8 @@
       <div class="pd-info" data-reveal><span class="chip">${esc(p.grade)}</span><h1>${esc(p.name)}</h1>
         <p class="meta">${esc(p.origin || 'Indonesia')}</p><p style="margin-top:var(--s3);max-width:56ch">${esc(p.description || '')}</p>
         <div class="specs glass">${rows.map(([t, v, max, d, s]) => `<div class="spec-row"><span>${t}</span><div class="spec-bar" style="--r:${Math.min(1, v / max).toFixed(3)}" role="img" aria-label="${t} ${nf(v)}${s}"><i></i></div><b data-count="${v}" data-decimals="${v % 1 ? d : 0}" data-suffix="${s}" aria-label="${nf(v)}${s}">${nf(v)}${s}</b></div>`).join('')}</div>
-        <p class="price" style="margin-bottom:var(--s3)">${L.formatUSD(p.price_per_kg)}<small> /kg, harga referensi</small></p>
+        <p class="price" style="margin-bottom:var(--s3)">${L.formatUSD(p.price_per_kg)}<small> /kg, harga referensi indikatif</small></p>
+        <p class="meta" style="margin-bottom:var(--s3)">Diperbarui: ${new Date(p.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         <div style="margin-bottom:var(--s4)">${stockNote(p)}</div>
         ${X.calculator(p, Math.max(1, Math.min(500, 10)))}
         <div class="hero-cta" style="margin-top:var(--s5)"><button class="btn" id="rfq-this" type="button">Request Quotation (RFQ)</button>${p.status === 'OUT_OF_STOCK' ? '<span class="chip warn">Stok Menipis / Hubungi Kami</span>' : ''}</div>
@@ -149,6 +150,7 @@
       ${field('country', 'Negara tujuan', 'autocomplete="country-name"')}
       ${field('notes', 'Catatan (opsional)', '', 'textarea')}
       <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <p class="meta" style="font-size:.85rem">Data Anda hanya dipakai untuk menanggapi permintaan penawaran ini.</p>
       <button class="btn" type="submit" id="send">Kirim permintaan</button></form>`;
     mountCalc();
     $('#f-product', ov).addEventListener('change', e => { cur = list.find(x => x.id === e.target.value); mountCalc(); });

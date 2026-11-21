@@ -1,7 +1,7 @@
 /* Akses data Supabase. Aturan bisnis RFQ (validasi, nomor, snapshot harga) ada di fungsi database; lihat schema.sql. */
 (function () {
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const PUB_COLS = 'id,name,slug,grade,length_cm,moisture_percentage,vanillin_percentage,price_per_kg,stock_kg,status,origin,description,image_url';
+  const PUB_COLS = 'id,name,slug,grade,length_cm,moisture_percentage,vanillin_percentage,price_per_kg,stock_kg,status,origin,description,image_url,updated_at';
   const num = r => ({ ...r, length_cm: +r.length_cm, moisture_percentage: +r.moisture_percentage, vanillin_percentage: +r.vanillin_percentage, price_per_kg: +r.price_per_kg, stock_kg: +r.stock_kg });
   const fail = e => { const err = new Error(e.message || 'Terjadi kesalahan'); err.code = e.code; throw err; };
 
